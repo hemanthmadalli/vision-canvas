@@ -145,24 +145,24 @@ function Index() {
 
       {/* Habit table: rows = habits, columns = dates, right = habit % */}
       <section className="mt-4 grid gap-4 md:grid-cols-[220px_minmax(0,1fr)_260px]">
-        <div className="rounded-2xl border border-border bg-card">
-          <div className="border-b border-border px-3 py-2 text-sm font-medium">
+        <div className="rounded-2xl border border-border bg-card p-3">
+          <div className="mb-2 flex h-[26px] items-center text-sm font-medium">
             Daily habits
           </div>
-          <ul>
+          <div className="flex flex-col gap-[6px]">
             {habits.map((h) => (
-              <li
+              <div
                 key={h.name}
-                className="truncate border-b border-border px-3 py-2 text-sm last:border-b-0"
+                className="flex h-[26px] items-center truncate text-sm"
               >
                 {h.name}
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
 
         <div className="overflow-x-auto rounded-2xl border border-border bg-card p-3">
-          <div className="mb-2 flex gap-[2px]">
+          <div className="mb-2 flex h-[26px] items-center gap-[2px]">
             {dates.map((d) => (
               <span
                 key={d}
@@ -189,23 +189,23 @@ function Index() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card">
-          <div className="border-b border-border px-3 py-2 text-sm font-medium">
+        <div className="rounded-2xl border border-border bg-card p-3">
+          <div className="mb-2 flex h-[26px] items-center text-sm font-medium">
             Monthly %
           </div>
-          <ul>
+          <div className="flex flex-col gap-[6px]">
             {habitPercent.map((p, i) => (
-              <li
+              <div
                 key={i}
-                className="flex items-center gap-2 border-b border-border px-3 py-2 last:border-b-0"
+                className="flex h-[26px] items-center gap-2"
               >
                 <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
                   <div className="h-full rounded-full bg-primary" style={{ width: `${p}%` }} />
                 </div>
                 <span className="w-10 shrink-0 text-right text-sm tabular-nums">{p}%</span>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </section>
     </main>
