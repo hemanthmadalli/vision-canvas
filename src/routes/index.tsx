@@ -73,9 +73,20 @@ function Index() {
           </h1>
         </div>
 
-        <p className="order-3 col-span-2 text-center text-sm italic text-muted-foreground md:order-none md:col-span-1">
-          “We are what we repeatedly do. Excellence, then, is a habit.”
-        </p>
+        <div className="order-3 col-span-2 flex flex-none justify-center px-6 md:order-none md:col-span-1">
+          <div className="relative px-8 md:px-12">
+            {/* ambient glow behind the mantra */}
+            <div className="absolute inset-0 -z-10 scale-150 rounded-full bg-primary/10 blur-2xl" />
+
+            <div className="flex flex-col items-center">
+              <div className="h-px w-8 bg-muted-foreground/30" />
+              <blockquote className="font-[family-name:Playfair_Display] py-3 text-center text-xl italic leading-relaxed tracking-wide text-foreground sm:text-2xl">
+                “We are what we repeatedly do. Excellence, then, is a habit.”
+              </blockquote>
+              <div className="h-px w-8 bg-muted-foreground/30" />
+            </div>
+          </div>
+        </div>
 
         <div className="flex shrink-0 items-center justify-end gap-1.5">
           {stickers.map((s, i) => (
