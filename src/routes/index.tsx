@@ -178,7 +178,7 @@ function Index() {
                 {row.map((done, ci) => (
                   <span
                     key={ci}
-                    title={`${habits[ri].name} — ${MONTH} ${dates[ci]}`}
+                    title={`${habits[ri]?.name} — ${MONTH} ${dates[ci]}`}
                     className={`h-[26px] min-w-[6px] flex-1 rounded ${
                       done ? "bg-primary/80" : "bg-muted"
                     }`}
