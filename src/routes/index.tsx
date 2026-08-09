@@ -37,12 +37,15 @@ const weeks = [
   { label: "week 5", days: [29, 30], color: "w5" },
 ];
 
-const weekTint: Record<string, { bar: string; soft: string; text: string; border: string }> = {
-  w1: { bar: "bg-w1", soft: "bg-w1-soft", text: "text-w1", border: "border-w1" },
-  w2: { bar: "bg-w2", soft: "bg-w2-soft", text: "text-w2", border: "border-w2" },
-  w3: { bar: "bg-w3", soft: "bg-w3-soft", text: "text-w3", border: "border-w3" },
-  w4: { bar: "bg-w4", soft: "bg-w4-soft", text: "text-w4", border: "border-w4" },
-  w5: { bar: "bg-w5", soft: "bg-w5-soft", text: "text-w5", border: "border-w5" },
+const weekTint: Record<
+  string,
+  { bar: string; soft: string; text: string; border: string; stroke: string }
+> = {
+  w1: { bar: "bg-w1", soft: "bg-w1-soft", text: "text-w1", border: "border-w1", stroke: "stroke-w1" },
+  w2: { bar: "bg-w2", soft: "bg-w2-soft", text: "text-w2", border: "border-w2", stroke: "stroke-w2" },
+  w3: { bar: "bg-w3", soft: "bg-w3-soft", text: "text-w3", border: "border-w3", stroke: "stroke-w3" },
+  w4: { bar: "bg-w4", soft: "bg-w4-soft", text: "text-w4", border: "border-w4", stroke: "stroke-w4" },
+  w5: { bar: "bg-w5", soft: "bg-w5-soft", text: "text-w5", border: "border-w5", stroke: "stroke-w5" },
 };
 
 const habits = [
@@ -309,7 +312,7 @@ function Index() {
               <Donut
                 key={w.label}
                 value={weekPercent[i]!}
-                color={`stroke-${w.color}`}
+                color={weekTint[w.color]!.stroke}
                 size={58}
                 label={w.label}
               />
