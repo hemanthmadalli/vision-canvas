@@ -66,7 +66,13 @@ const habits = [
 ];
 
 const dates = Array.from({ length: DAYS }, (_, i) => i + 1);
-const grid = habits.map((h) => dates.map((d) => (d * h.seed + h.seed) % 4 !== 0));
+const rand = (a: number, b: number) => {
+  const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
+  return x - Math.floor(x);
+};
+const grid = habits.map((h, hi) =>
+  dates.map((d) => rand(h.seed + hi, d) < 0.55 + ((hi % 5) * 0.06)),
+);
 
 const dayPercent = dates.map((_, i) =>
   Math.round((grid.filter((row) => row[i]).length / habits.length) * 100),
@@ -231,7 +237,8 @@ function Index() {
 
           <div className="rounded-md border border-border bg-panel">
             <PanelTitle>Daily habits</PanelTitle>
-            <ul className="flex flex-col gap-[4px] p-2">
+            <div className="h-[30px]" aria-hidden="true" />
+            <ul className="flex flex-col gap-[4px] px-2 pb-2">
               {habits.map((h) => (
                 <li
                   key={h.name}
