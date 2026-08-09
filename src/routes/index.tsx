@@ -191,9 +191,9 @@ function PanelTitle({ children, tint = "bg-w1-soft" }: { children: string; tint?
 function Index() {
   return (
     <main className="min-h-screen bg-background p-3 text-foreground">
-      <div className="grid gap-3 lg:grid-cols-[190px_minmax(0,1fr)_260px]">
-        {/* ---------------- LEFT COLUMN ---------------- */}
-        <div className="flex flex-col gap-3">
+      <div className="grid items-start gap-3 lg:grid-cols-[190px_minmax(0,1fr)_260px]">
+        {/* ---------------- TOP LEFT ---------------- */}
+        <div className="flex h-full flex-col gap-3">
           <div className="flex items-start gap-2">
             <button
               aria-label="Open menu"
@@ -222,36 +222,21 @@ function Index() {
             </div>
           </div>
 
-          <figure className="overflow-hidden rounded-md border border-border bg-cream">
+          <figure className="flex flex-1 flex-col overflow-hidden rounded-md border border-border bg-cream">
             <img
               src={homePhoto}
               alt="Woman journaling her habits at a sunlit desk"
               width={736}
               height={912}
-              className="h-[150px] w-full object-cover"
+              className="h-[150px] w-full object-cover lg:h-auto lg:min-h-0 lg:flex-1"
             />
             <figcaption className="px-2 py-1.5 font-[family-name:Playfair_Display] text-[10px] italic leading-snug text-foreground/70">
               I am calm, intentional, and ready for the month ahead.
             </figcaption>
           </figure>
-
-          <div className="rounded-md border border-border bg-panel">
-            <PanelTitle>Daily habits</PanelTitle>
-            <div className="h-[30px]" aria-hidden="true" />
-            <ul className="flex flex-col gap-[4px] px-2 pb-2">
-              {habits.map((h) => (
-                <li
-                  key={h.name}
-                  className="flex h-[20px] items-center truncate text-[10px] text-foreground/80"
-                >
-                  {h.name}
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
 
-        {/* ---------------- CENTER COLUMN ---------------- */}
+        {/* ---------------- TOP CENTER ---------------- */}
         <div className="flex min-w-0 flex-col gap-3">
           <div className="h-[92px] overflow-hidden rounded-md border border-border bg-panel">
             <AreaChart />
@@ -325,66 +310,9 @@ function Index() {
               />
             ))}
           </div>
-
-          {/* habit matrix */}
-          <div className="overflow-x-auto rounded-md border border-border bg-panel p-2">
-            <div className="flex min-w-[520px] gap-3">
-              {weeks.map((w) => (
-                <div key={w.label} style={{ flex: w.days.length }}>
-                  <div
-                    className={`${weekTint[w.color]!.soft} rounded-sm text-center text-[8px] uppercase tracking-[0.2em] text-foreground/60`}
-                  >
-                    {w.label}
-                  </div>
-                  <div className="mt-1 flex gap-[3px]">
-                    {w.days.map((d, di) => (
-                      <span
-                        key={d}
-                        className={`flex-1 text-center text-[7px] font-semibold ${weekTint[w.color]!.text}`}
-                      >
-                        {WEEKDAYS[(d - 1) % 7] ?? WEEKDAYS[di]}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex gap-[3px]">
-                    {w.days.map((d) => (
-                      <span
-                        key={d}
-                        className="flex-1 text-center text-[7px] tabular-nums text-muted-foreground"
-                      >
-                        {d}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-1 flex flex-col gap-[4px]">
-                    {habits.map((h, ri) => (
-                      <div key={h.name} className="flex h-[20px] items-center gap-[3px]">
-                        {w.days.map((d) => {
-                          const done = grid[ri]![d - 1];
-                          return (
-                            <span
-                              key={d}
-                              title={`${h.name} — ${MONTH} ${d}`}
-                              className={`grid h-[14px] flex-1 place-items-center rounded-[3px] border ${
-                                weekTint[w.color]!.border
-                              } ${done ? weekTint[w.color]!.bar : "bg-panel"}`}
-                            >
-                              {done ? (
-                                <Check className="h-[9px] w-[9px] text-panel" strokeWidth={4} />
-                              ) : null}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
-        {/* ---------------- RIGHT COLUMN ---------------- */}
+        {/* ---------------- TOP RIGHT ---------------- */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-around rounded-md bg-w2-soft px-3 py-3">
             <div className="text-center">
@@ -408,7 +336,7 @@ function Index() {
 
           <div className="rounded-md border border-border bg-panel">
             <PanelTitle>Top 10 habits</PanelTitle>
-            <div className="flex items-center justify-between border-b border-border px-2 py-1 text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
+            <div className="flex items-center justify-between border-b border-border px-2 py-0.5 text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
               <span>Daily habit</span>
               <span>Progress</span>
             </div>
@@ -416,7 +344,7 @@ function Index() {
               {topHabits.map((h, i) => (
                 <li
                   key={h.name}
-                  className="flex items-center gap-2 px-2 py-[3px] text-[9px]"
+                  className="flex items-center gap-2 px-2 py-[2px] text-[9px]"
                 >
                   <span className="w-3 shrink-0 text-muted-foreground tabular-nums">{i + 1}</span>
                   <span className="min-w-0 flex-1 truncate">{h.name}</span>
@@ -424,41 +352,115 @@ function Index() {
                 </li>
               ))}
             </ol>
-            <p className="border-t border-border px-2 py-1 text-center font-[family-name:Playfair_Display] text-[9px] italic text-muted-foreground">
+            <p className="border-t border-border px-2 py-0.5 text-center font-[family-name:Playfair_Display] text-[9px] italic text-muted-foreground">
               Over {totalDone} on {habits.length} habits — keep going!
             </p>
           </div>
+        </div>
 
-          <div className="rounded-md border border-border bg-panel">
-            <PanelTitle tint="bg-w1-soft">Daily progress</PanelTitle>
-            <div className="grid grid-cols-[26px_minmax(0,1fr)_34px] gap-1 border-b border-border px-2 py-1 text-[8px] uppercase tracking-[0.1em] text-muted-foreground">
-              <span>Goal</span>
-              <span>Percentage</span>
-              <span className="text-right">Count</span>
-            </div>
-            <ul className="p-1">
-              {habits.map((h, i) => (
-                <li
-                  key={h.name}
-                  className="grid h-[20px] grid-cols-[26px_minmax(0,1fr)_34px] items-center gap-1 px-1 text-[9px]"
+        {/* ---------------- BOTTOM LEFT: daily habits ---------------- */}
+        <div className="rounded-md border border-border bg-panel">
+          <PanelTitle>Daily habits</PanelTitle>
+          <div className="h-[22px]" aria-hidden="true" />
+          <ul className="flex flex-col gap-[4px] px-2 pb-2">
+            {habits.map((h) => (
+              <li
+                key={h.name}
+                className="flex h-[20px] items-center truncate text-[10px] text-foreground/80"
+              >
+                {h.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* ---------------- BOTTOM CENTER: habit matrix ---------------- */}
+        <div className="overflow-x-auto rounded-md border border-border bg-panel p-2">
+          <div className="flex min-w-[520px] gap-3">
+            {weeks.map((w) => (
+              <div key={w.label} style={{ flex: w.days.length }}>
+                <div
+                  className={`${weekTint[w.color]!.soft} rounded-sm text-center text-[8px] uppercase tracking-[0.2em] text-foreground/60`}
                 >
-                  <span className="tabular-nums text-muted-foreground">{h.goal}</span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-6 shrink-0 tabular-nums">{habitPercent[i]}%</span>
-                    <span className="h-2 flex-1 overflow-hidden rounded-sm bg-muted">
-                      <span
-                        className="block h-full rounded-sm bg-w1"
-                        style={{ width: `${habitPercent[i]}%` }}
-                      />
+                  {w.label}
+                </div>
+                <div className="mt-1 flex gap-[3px]">
+                  {w.days.map((d, di) => (
+                    <span
+                      key={d}
+                      className={`flex-1 text-center text-[7px] font-semibold ${weekTint[w.color]!.text}`}
+                    >
+                      {WEEKDAYS[(d - 1) % 7] ?? WEEKDAYS[di]}
                     </span>
-                  </span>
-                  <span className="text-right tabular-nums text-muted-foreground">
-                    {habitCount[i]}/{h.goal}
-                  </span>
-                </li>
-              ))}
-            </ul>
+                  ))}
+                </div>
+                <div className="flex gap-[3px]">
+                  {w.days.map((d) => (
+                    <span
+                      key={d}
+                      className="flex-1 text-center text-[7px] tabular-nums text-muted-foreground"
+                    >
+                      {d}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-1 flex flex-col gap-[4px]">
+                  {habits.map((h, ri) => (
+                    <div key={h.name} className="flex h-[20px] items-center gap-[3px]">
+                      {w.days.map((d) => {
+                        const done = grid[ri]![d - 1];
+                        return (
+                          <span
+                            key={d}
+                            title={`${h.name} — ${MONTH} ${d}`}
+                            className={`grid h-[14px] flex-1 place-items-center rounded-[3px] border ${
+                              weekTint[w.color]!.border
+                            } ${done ? weekTint[w.color]!.bar : "bg-panel"}`}
+                          >
+                            {done ? (
+                              <Check className="h-[9px] w-[9px] text-panel" strokeWidth={4} />
+                            ) : null}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
+        </div>
+
+        {/* ---------------- BOTTOM RIGHT: daily progress ---------------- */}
+        <div className="rounded-md border border-border bg-panel">
+          <PanelTitle tint="bg-w1-soft">Daily progress</PanelTitle>
+          <div className="grid h-[22px] grid-cols-[26px_minmax(0,1fr)_34px] items-center gap-1 border-b border-border px-2 text-[8px] uppercase tracking-[0.1em] text-muted-foreground">
+            <span>Goal</span>
+            <span>Percentage</span>
+            <span className="text-right">Count</span>
+          </div>
+          <ul className="flex flex-col gap-[4px] px-1 pb-1">
+            {habits.map((h, i) => (
+              <li
+                key={h.name}
+                className="grid h-[20px] grid-cols-[26px_minmax(0,1fr)_34px] items-center gap-1 px-1 text-[9px]"
+              >
+                <span className="tabular-nums text-muted-foreground">{h.goal}</span>
+                <span className="flex items-center gap-1">
+                  <span className="w-6 shrink-0 tabular-nums">{habitPercent[i]}%</span>
+                  <span className="h-2 flex-1 overflow-hidden rounded-sm bg-muted">
+                    <span
+                      className="block h-full rounded-sm bg-w1"
+                      style={{ width: `${habitPercent[i]}%` }}
+                    />
+                  </span>
+                </span>
+                <span className="text-right tabular-nums text-muted-foreground">
+                  {habitCount[i]}/{h.goal}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </main>
