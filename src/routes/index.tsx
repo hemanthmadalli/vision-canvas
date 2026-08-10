@@ -103,6 +103,22 @@ const topHabits = habits
   .sort((a, b) => b.percent - a.percent)
   .slice(0, 10);
 
+const stickers = [
+  { emoji: "🌸", label: "7-day streak" },
+  { emoji: "🏅", label: "Perfect week" },
+  { emoji: "📚", label: "Reader" },
+  { emoji: "💧", label: "Hydrated" },
+  { emoji: "🧘", label: "Calm mind" },
+  { emoji: "🔥", label: "30-day streak" },
+];
+
+const leaderboard = [
+  { rank: 1, name: "Ananya R.", percent: 94, you: false },
+  { rank: 2, name: "Dev Patel", percent: 91, you: false },
+  { rank: 3, name: "Meera S.", percent: 88, you: false },
+  { rank: 12, name: "You", percent: Math.round(overall), you: true },
+];
+
 function Donut({
   value,
   color,
