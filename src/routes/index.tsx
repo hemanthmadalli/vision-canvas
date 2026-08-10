@@ -98,11 +98,6 @@ const totalDone = habitCount.reduce((a, b) => a + b, 0);
 const totalCells = habits.length * DAYS;
 const overall = Math.round((totalDone / totalCells) * 10000) / 100;
 
-const topHabits = habits
-  .map((h, i) => ({ name: h.name, percent: habitPercent[i]! }))
-  .sort((a, b) => b.percent - a.percent)
-  .slice(0, 10);
-
 const stickers = [
   { emoji: "🌸", label: "7-day streak" },
   { emoji: "🏅", label: "Perfect week" },
