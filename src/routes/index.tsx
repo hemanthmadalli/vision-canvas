@@ -98,10 +98,21 @@ const totalDone = habitCount.reduce((a, b) => a + b, 0);
 const totalCells = habits.length * DAYS;
 const overall = Math.round((totalDone / totalCells) * 10000) / 100;
 
-const topHabits = habits
-  .map((h, i) => ({ name: h.name, percent: habitPercent[i]! }))
-  .sort((a, b) => b.percent - a.percent)
-  .slice(0, 10);
+const stickers = [
+  { emoji: "🌸", label: "7-day streak" },
+  { emoji: "🏅", label: "Perfect week" },
+  { emoji: "📚", label: "Reader" },
+  { emoji: "💧", label: "Hydrated" },
+  { emoji: "🧘", label: "Calm mind" },
+  { emoji: "🔥", label: "30-day streak" },
+];
+
+const leaderboard = [
+  { rank: 1, name: "Ananya R.", percent: 94, you: false },
+  { rank: 2, name: "Dev Patel", percent: 91, you: false },
+  { rank: 3, name: "Meera S.", percent: 88, you: false },
+  { rank: 12, name: "You", percent: Math.round(overall), you: true },
+];
 
 function Donut({
   value,
@@ -314,47 +325,48 @@ function Index() {
 
         {/* ---------------- TOP RIGHT ---------------- */}
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-around rounded-md bg-w2-soft px-3 py-3">
-            <div className="text-center">
-              <p className="text-[8px] uppercase tracking-[0.2em] text-foreground/60">
-                Daily progress
-              </p>
-              <p className="mt-1 font-[family-name:Playfair_Display] text-lg italic tabular-nums">
-                {overall.toFixed(2)}%
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-[8px] uppercase tracking-[0.2em] text-foreground/60">Habits</p>
-              <div className="mt-1 grid place-items-center">
-                <Donut value={overall} color="stroke-w2" size={54} />
-                <p className="mt-0.5 text-[9px] tabular-nums text-foreground/70">
-                  {totalDone} / {totalCells}
-                </p>
-              </div>
-            </div>
+          {/* earned stickers */}
+          <div className="rounded-md border border-border bg-panel">
+            <PanelTitle tint="bg-w2-soft">Stickers earned</PanelTitle>
+            <ul className="flex flex-wrap items-center justify-center gap-2 px-2 py-3">
+              {stickers.map((s) => (
+                <li
+                  key={s.label}
+                  title={s.label}
+                  className="grid h-9 w-9 place-items-center rounded-full border border-border bg-w2-soft text-base"
+                >
+                  <span role="img" aria-label={s.label}>
+                    {s.emoji}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="border-t border-border px-2 py-1 text-center font-[family-name:Playfair_Display] text-[9px] italic text-muted-foreground">
+              {stickers.length} stickers collected this month
+            </p>
           </div>
 
+          {/* leaderboard */}
           <div className="rounded-md border border-border bg-panel">
-            <PanelTitle>Top 10 habits</PanelTitle>
-            <div className="flex items-center justify-between border-b border-border px-2 py-0.5 text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
-              <span>Daily habit</span>
-              <span>Progress</span>
+            <PanelTitle>Leaderboard</PanelTitle>
+            <div className="flex items-center justify-between border-b border-border px-2 py-1 text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
+              <span>Region — top 3</span>
+              <span>Score</span>
             </div>
             <ol className="divide-y divide-border">
-              {topHabits.map((h, i) => (
+              {leaderboard.map((p) => (
                 <li
-                  key={h.name}
-                  className="flex items-center gap-2 px-2 py-[2px] text-[9px]"
+                  key={p.name}
+                  className={`flex items-center gap-2 px-2 py-1.5 text-[10px] ${
+                    p.you ? "bg-w2-soft font-semibold" : ""
+                  }`}
                 >
-                  <span className="w-3 shrink-0 text-muted-foreground tabular-nums">{i + 1}</span>
-                  <span className="min-w-0 flex-1 truncate">{h.name}</span>
-                  <span className="shrink-0 tabular-nums">{h.percent}%</span>
+                  <span className="w-4 shrink-0 tabular-nums text-muted-foreground">{p.rank}</span>
+                  <span className="min-w-0 flex-1 truncate">{p.name}</span>
+                  <span className="shrink-0 tabular-nums">{p.percent}%</span>
                 </li>
               ))}
             </ol>
-            <p className="border-t border-border px-2 py-0.5 text-center font-[family-name:Playfair_Display] text-[9px] italic text-muted-foreground">
-              Over {totalDone} on {habits.length} habits — keep going!
-            </p>
           </div>
         </div>
 
