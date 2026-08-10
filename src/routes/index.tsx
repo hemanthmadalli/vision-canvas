@@ -213,23 +213,9 @@ function Index() {
               <Menu className="h-4 w-4" />
             </button>
             <div>
-              <h1 className="font-[family-name:Playfair_Display] text-3xl italic leading-none">
-                {MONTH}
+              <h1 className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
+                {MONTH} {YEAR} — Habit Tracker
               </h1>
-              <p className="mt-1 text-[9px] uppercase tracking-[0.35em] text-muted-foreground">
-                Habit Tracker
-              </p>
-            </div>
-          </div>
-
-          <div className="overflow-hidden rounded-md border border-border text-[9px] uppercase tracking-[0.15em]">
-            <div className="grid grid-cols-[1fr_1.2fr]">
-              <span className="bg-w4-soft px-2 py-1 text-foreground/70">Month</span>
-              <span className="border-l border-border bg-card px-2 py-1">{MONTH}</span>
-              <span className="border-t border-border bg-w4-soft px-2 py-1 text-foreground/70">
-                Year
-              </span>
-              <span className="border-l border-t border-border bg-card px-2 py-1">{YEAR}</span>
             </div>
           </div>
 
@@ -310,16 +296,23 @@ function Index() {
           </div>
 
           {/* week gauges */}
-          <div className="flex items-center justify-around rounded-md border border-border bg-panel py-2">
-            {weeks.map((w, i) => (
-              <Donut
-                key={w.label}
-                value={weekPercent[i]!}
-                color={weekTint[w.color]!.stroke}
-                size={58}
-                label={w.label}
-              />
-            ))}
+          <div className="flex items-center rounded-md border border-border bg-panel px-2 py-2">
+            <div className="flex w-full gap-3">
+              {weeks.map((w, i) => (
+                <div
+                  key={w.label}
+                  className="flex min-w-0 items-center justify-center"
+                  style={{ flex: w.days.length }}
+                >
+                  <Donut
+                    value={weekPercent[i]!}
+                    color={weekTint[w.color]!.stroke}
+                    size={58}
+                    label={w.label}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
