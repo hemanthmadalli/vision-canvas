@@ -5,6 +5,14 @@ import { useState } from "react";
 import { AppMenu } from "@/components/AppMenu";
 import { habits as seedHabits, categoryColor } from "@/lib/habit-analytics";
 
+const DOT: Record<string, string> = {
+  w1: "bg-w1",
+  w2: "bg-w2",
+  w3: "bg-w3",
+  w4: "bg-w4",
+  w5: "bg-w5",
+};
+
 export const Route = createFileRoute("/habits")({
   head: () => ({
     meta: [
@@ -116,7 +124,7 @@ function Row({
         muted ? "text-muted-foreground" : ""
       }`}
     >
-      <span className={`h-2.5 w-2.5 rounded-full bg-${tint}`} />
+      <span className={`h-2.5 w-2.5 rounded-full ${DOT[tint]}`} />
       <span className="flex-1">{name}</span>
       <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
         {category} · {kind}

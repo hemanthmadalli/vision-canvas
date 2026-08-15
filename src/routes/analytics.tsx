@@ -15,6 +15,29 @@ import {
   weekdayPercentFor,
 } from "@/lib/habit-analytics";
 
+const BAR: string[] = ["bg-w1", "bg-w2", "bg-w3", "bg-w4", "bg-w5"];
+const FILL: Record<string, string> = {
+  w1: "bg-w1",
+  w2: "bg-w2",
+  w3: "bg-w3",
+  w4: "bg-w4",
+  w5: "bg-w5",
+};
+const STROKE: Record<string, string> = {
+  w1: "stroke-w1",
+  w2: "stroke-w2",
+  w3: "stroke-w3",
+  w4: "stroke-w4",
+  w5: "stroke-w5",
+};
+const SOFT: Record<string, string> = {
+  w1: "bg-w1-soft",
+  w2: "bg-w2-soft",
+  w3: "bg-w3-soft",
+  w4: "bg-w4-soft",
+  w5: "bg-w5-soft",
+};
+
 export const Route = createFileRoute("/analytics")({
   head: () => ({
     meta: [
@@ -117,7 +140,7 @@ function AnalyticsPage() {
               <div key={m.month} className="flex flex-1 flex-col items-center gap-1">
                 <span className="text-[9px] tabular-nums text-muted-foreground">{m.value}%</span>
                 <div
-                  className={`w-full rounded-t bg-w${(i % 5) + 1}`}
+                  className={`w-full rounded-t ${BAR[i % 5]}`}
                   style={{ height: `${m.value}%` }}
                 />
                 <span className="text-[9px] text-muted-foreground">{m.month}</span>
@@ -145,7 +168,7 @@ function AnalyticsPage() {
                     </span>
                     <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
                       <span
-                        className={`block h-full rounded-full bg-${tint}`}
+                        className={`block h-full rounded-full ${FILL[tint]}`}
                         style={{ width: `${s.rate}%` }}
                       />
                     </span>
@@ -165,7 +188,7 @@ function AnalyticsPage() {
                 key={c.name}
                 value={c.value}
                 label={c.name}
-                color={`stroke-${categoryColor[c.name] ?? "w1"}`}
+                color={STROKE[categoryColor[c.name] ?? "w1"]!}
               />
             ))}
           </div>
@@ -179,7 +202,7 @@ function AnalyticsPage() {
             {weekdays.map((w, i) => (
               <div key={w.label} className="flex flex-1 flex-col items-center gap-1">
                 <div
-                  className={`w-full rounded-t bg-w${(i % 5) + 1}`}
+                  className={`w-full rounded-t ${BAR[i % 5]}`}
                   style={{ height: `${w.value}%` }}
                 />
                 <span className="text-[9px] text-muted-foreground">{w.label.slice(0, 1)}</span>
@@ -256,7 +279,7 @@ function AnalyticsPage() {
 
 function Kpi({ label, value, tint }: { label: string; value: string; tint: string }) {
   return (
-    <div className={`rounded-2xl border border-border bg-${tint}-soft px-4 py-3`}>
+    <div className={`rounded-2xl border border-border ${SOFT[tint]} px-4 py-3`}>
       <p className="text-[9px] uppercase tracking-[0.2em] text-foreground/60">{label}</p>
       <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
     </div>
