@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Menu, Check } from "lucide-react";
+import { Check } from "lucide-react";
+import { AppMenu } from "@/components/AppMenu";
 import homePhoto from "@/assets/home-photo.jpg";
 
 export const Route = createFileRoute("/")({
@@ -206,12 +207,7 @@ function Index() {
         {/* ---------------- TOP LEFT ---------------- */}
         <div className="flex h-full flex-col gap-3">
           <div className="flex items-start gap-2">
-            <button
-              aria-label="Open menu"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border bg-card transition-colors hover:bg-accent"
-            >
-              <Menu className="h-4 w-4" />
-            </button>
+            <AppMenu />
             <div>
               <h1 className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
                 {MONTH} {YEAR} — Habit Tracker
