@@ -137,7 +137,7 @@ function AnalyticsPage() {
         <Panel title="Month over month">
           <div className="flex h-40 items-end gap-2">
             {monthTrend.map((m, i) => (
-              <div key={m.month} className="flex flex-1 flex-col items-center gap-1">
+              <div key={m.month} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
                 <span className="text-[9px] tabular-nums text-muted-foreground">{m.value}%</span>
                 <div
                   className={`w-full rounded-t ${BAR[i % 5]}`}
@@ -200,7 +200,7 @@ function AnalyticsPage() {
         <Panel title="Weekday pattern">
           <div className="flex h-32 items-end gap-1.5">
             {weekdays.map((w, i) => (
-              <div key={w.label} className="flex flex-1 flex-col items-center gap-1">
+              <div key={w.label} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
                 <div
                   className={`w-full rounded-t ${BAR[i % 5]}`}
                   style={{ height: `${w.value}%` }}
