@@ -130,43 +130,43 @@ function AnalyticsPage() {
         </div>
       </header>
 
-      <div className="mx-auto h-[calc(100vh-49px)] max-w-6xl px-4 py-3">
-        <div className="grid h-full grid-cols-1 gap-3 lg:grid-cols-12">
+      <div className="mx-auto h-[calc(100vh-49px)] max-w-6xl px-3 py-2">
+        <div className="grid h-full grid-cols-12 gap-2">
           {/* left column */}
-          <div className="flex flex-col gap-3 lg:col-span-8">
+          <div className="flex flex-col gap-2 col-span-8">
             {/* title */}
             <section>
-              <h1 className="font-[family-name:Playfair_Display] text-2xl">Analytics</h1>
+              <h1 className="font-[family-name:Playfair_Display] text-xl">Analytics</h1>
               <p className="font-[family-name:Playfair_Display] text-xs italic text-muted-foreground">
                 A little look at how your habits are growing.
               </p>
             </section>
 
             {/* summary */}
-            <section className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-              <Summary tint="w1" icon="🌤️" label="Overall completion" value={`${overall}%`} note="Keep it up!" />
-              <Summary tint="w2" icon="🔥" label="Best streak" value={`${bestStreak} days`} note="Consistency is key." />
+            <section className="grid grid-cols-4 gap-2">
+              <Summary tint="w1" icon="🌤️" label="Overall" value={`${overall}%`} note="Keep it up!" />
+              <Summary tint="w2" icon="🔥" label="Streak" value={`${bestStreak}d`} note="Consistency." />
               <Summary
                 tint="w3"
                 icon="🌟"
-                label="Most consistent habit"
+                label="Top habit"
                 value={bestHabit?.habit.name ?? "—"}
-                note="You've got this!"
+                note="Got this!"
                 small
               />
-              <Summary tint="w4" icon="📈" label="Weekly average" value={`${weeklyAvg}%`} note="Keep building!" />
+              <Summary tint="w4" icon="📈" label="Weekly" value={`${weeklyAvg}%`} note="Building!" />
             </section>
 
             {/* trend */}
-            <Card className="flex-1">
+            <Card className="flex-1 p-3">
               <div className="flex items-center justify-between gap-2">
-                <h2 className="font-[family-name:Playfair_Display] text-base">Habit Completion Trend</h2>
-                <div className="flex gap-1 rounded-lg border border-border bg-muted/40 p-0.5">
+                <h2 className="font-[family-name:Playfair_Display] text-sm">Habit Completion Trend</h2>
+                <div className="flex gap-0.5 rounded-lg border border-border bg-muted/40 p-0.5">
                   {RANGES.map((r) => (
                     <button
                       key={r}
                       onClick={() => setRange(r)}
-                      className={`rounded-md px-2 py-0.5 text-[10px] transition-colors ${
+                      className={`rounded-md px-1.5 py-0.5 text-[9px] transition-colors ${
                         range === r ? "bg-w1-soft font-semibold" : "text-muted-foreground hover:bg-accent"
                       }`}
                     >
@@ -176,13 +176,13 @@ function AnalyticsPage() {
                 </div>
               </div>
 
-              <div className="mt-2 flex gap-2">
-                <div className="flex h-28 flex-col justify-between py-[2px] text-[8px] tabular-nums text-muted-foreground">
+              <div className="mt-1 flex gap-2">
+                <div className="flex h-20 flex-col justify-between py-[2px] text-[8px] tabular-nums text-muted-foreground">
                   {[100, 75, 50, 25, 0].map((t) => (
                     <span key={t}>{t}%</span>
                   ))}
                 </div>
-                <div className="relative h-28 flex-1">
+                <div className="relative h-20 flex-1">
                   <div className="absolute inset-0 flex flex-col justify-between">
                     {[0, 1, 2, 3, 4].map((i) => (
                       <span key={i} className="h-px w-full bg-border" />
@@ -193,7 +193,7 @@ function AnalyticsPage() {
                       <div
                         key={i}
                         title={`${p}%`}
-                        className="flex-1 rounded-t-md bg-w1/70 transition-colors hover:bg-w1"
+                        className="flex-1 rounded-t-sm bg-w1/70 transition-colors hover:bg-w1"
                         style={{ height: `${Math.max(p, 4)}%` }}
                       />
                     ))}
@@ -205,7 +205,7 @@ function AnalyticsPage() {
                 <span>day {DAYS}</span>
               </div>
 
-              <p className="mt-2 rounded-lg bg-w3-soft px-2 py-1 text-[11px]">
+              <p className="mt-1 rounded-lg bg-w3-soft px-2 py-1 text-[10px]">
                 {delta >= 0 ? "🌱 " : "🍃 "}
                 Your consistency has {delta >= 0 ? "improved" : "eased"} by {Math.abs(delta)}% compared with
                 the previous period.
@@ -214,33 +214,33 @@ function AnalyticsPage() {
 
             {/* per habit */}
             <section>
-              <h2 className="mb-1 font-[family-name:Playfair_Display] text-base">Habit performance</h2>
-              <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-                {sorted.slice(0, 8).map((s) => {
+              <h2 className="mb-1 font-[family-name:Playfair_Display] text-sm">Habit performance</h2>
+              <div className="grid grid-cols-4 gap-2">
+                {sorted.slice(0, 4).map((s) => {
                   const tint = categoryColor[s.habit.category] ?? "w1";
                   return (
                     <div
                       key={s.habit.id}
                       className="rounded-xl border border-border bg-card p-2 shadow-sm"
                     >
-                      <div className="flex items-start gap-2">
-                        <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${SOFT[tint]} text-xs`}>
+                      <div className="flex items-start gap-1.5">
+                        <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-full ${SOFT[tint]} text-[10px]`}>
                           {HABIT_EMOJI[s.habit.id] ?? "✨"}
                         </span>
-                        <p className="text-[11px] leading-tight">{s.habit.name}</p>
-                        <span className="ml-auto text-[10px] text-muted-foreground">
+                        <p className="text-[10px] leading-tight">{s.habit.name}</p>
+                        <span className="ml-auto text-[9px] text-muted-foreground">
                           {s.rate >= 70 ? "↑" : s.rate >= 55 ? "→" : "↓"}
                         </span>
                       </div>
-                      <p className="mt-1 text-lg font-semibold tabular-nums">{s.rate}%</p>
-                      <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-muted">
+                      <p className="mt-1 text-base font-semibold tabular-nums">{s.rate}%</p>
+                      <span className="mt-1 block h-1 overflow-hidden rounded-full bg-muted">
                         <span
                           className={`block h-full rounded-full ${FILL[tint]}`}
                           style={{ width: `${s.rate}%` }}
                         />
                       </span>
-                      <p className="mt-1 text-[9px] text-muted-foreground">
-                        🔥 Streak: {s.current || s.best} days
+                      <p className="mt-1 text-[8px] text-muted-foreground">
+                        🔥 {s.current || s.best}d
                       </p>
                     </div>
                   );
@@ -250,10 +250,10 @@ function AnalyticsPage() {
           </div>
 
           {/* right column */}
-          <div className="flex flex-col gap-3 lg:col-span-4">
+          <div className="flex flex-col gap-2 col-span-4">
             {/* insights */}
             <section className="grid grid-cols-2 gap-2">
-              <Insight tint="w3" title="🌿 Strongest habits">
+              <Insight tint="w3" title="🌿 Strongest">
                 {strongest.map((s) => (
                   <li key={s.habit.id}>{s.habit.name}</li>
                 ))}
@@ -274,16 +274,16 @@ function AnalyticsPage() {
             </section>
 
             {/* patterns */}
-            <Card className="flex-1">
-              <h2 className="font-[family-name:Playfair_Display] text-base">Patterns</h2>
-              <ul className="mt-2 grid gap-1 text-[11px]">
+            <Card className="flex-1 p-3">
+              <h2 className="font-[family-name:Playfair_Display] text-sm">Patterns</h2>
+              <ul className="mt-1 grid gap-1 text-[10px]">
                 {[
                   "Weekdays are stronger than weekends",
                   "Your consistency is highest in the evening",
-                  "You complete study-related habits more consistently",
+                  "Study-related habits complete more consistently",
                   "Your longest streak happened during Week 3",
                 ].map((p) => (
-                  <li key={p} className="flex items-start gap-2 rounded-lg bg-muted/40 px-2 py-1">
+                  <li key={p} className="flex items-start gap-1.5 rounded-md bg-muted/40 px-1.5 py-1">
                     <span className="text-w3">✓</span>
                     {p}
                   </li>
@@ -293,27 +293,27 @@ function AnalyticsPage() {
 
             {/* reflection */}
             <section className="rounded-xl border border-border bg-cream p-3 shadow-sm">
-              <h2 className="font-[family-name:Playfair_Display] text-base">Reflection</h2>
-              <p className="mt-1 font-[family-name:Playfair_Display] text-sm italic leading-snug text-foreground/80">
+              <h2 className="font-[family-name:Playfair_Display] text-sm">Reflection</h2>
+              <p className="mt-0.5 font-[family-name:Playfair_Display] text-xs italic leading-snug text-foreground/80">
                 “What one small change could make next week easier?”
               </p>
               <textarea
-                rows={2}
-                placeholder="Write a gentle note to yourself…"
-                className="mt-2 w-full resize-none rounded-xl border border-border bg-card/70 px-2 py-1 font-[family-name:Playfair_Display] text-[11px] italic outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-w1"
+                rows={1}
+                placeholder="Write a gentle note…"
+                className="mt-1 w-full resize-none rounded-lg border border-border bg-card/70 px-2 py-1 font-[family-name:Playfair_Display] text-[11px] italic outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-w1"
               />
             </section>
 
             {/* stickers */}
             <section className="rounded-xl border border-border bg-card p-3 shadow-sm">
-              <h2 className="font-[family-name:Playfair_Display] text-base">Stickers earned</h2>
-              <ul className="mt-2 flex flex-wrap gap-2">
+              <h2 className="font-[family-name:Playfair_Display] text-sm">Stickers earned</h2>
+              <ul className="mt-1 flex flex-wrap gap-1.5">
                 {stickers.map((s) => (
                   <li
                     key={s.label}
-                    className="flex items-center gap-1.5 rounded-full border border-border bg-w2-soft px-2 py-1 text-[10px]"
+                    className="flex items-center gap-1 rounded-full border border-border bg-w2-soft px-2 py-0.5 text-[9px]"
                   >
-                    <span role="img" aria-label={s.label} className="text-sm">
+                    <span role="img" aria-label={s.label} className="text-xs">
                       {s.emoji}
                     </span>
                     {s.label}
@@ -322,7 +322,7 @@ function AnalyticsPage() {
               </ul>
             </section>
 
-            <p className="text-center text-[9px] uppercase tracking-[0.25em] text-muted-foreground">
+            <p className="text-center text-[8px] uppercase tracking-[0.25em] text-muted-foreground">
               {MONTH_LABEL} · {monthTrend[monthTrend.length - 1]?.value}% this month
             </p>
           </div>
