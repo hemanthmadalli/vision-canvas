@@ -7,8 +7,10 @@ import {
   DAYS,
   WEEKDAYS,
   categoryColor,
+  dayPercentFor,
   habitStats,
   habits,
+  monthTrend,
   percent,
   weekdayPercentFor,
 } from "@/lib/habit-analytics";
@@ -88,6 +90,7 @@ function AnalyticsPage() {
   const list = useMemo(() => habits.filter((h) => h.status === "active"), []);
   const stats = useMemo(() => habitStats(list), [list]);
   const weekdays = useMemo(() => weekdayPercentFor(list), [list]);
+  const dayPercent = useMemo(() => dayPercentFor(list), [list]);
 
   const overall = percent(
     stats.reduce((a, s) => a + s.done, 0),
@@ -100,15 +103,58 @@ function AnalyticsPage() {
   const weeklyAvg = Math.round(
     weekdays.reduce((a, w) => a + w.value, 0) / (weekdays.length || 1),
   );
-  const weekGauges = useMemo(
+
+  /** weeks of the month: chunks of 7 days */
+  const monthWeeks = useMemo(() => {
+    const out: { label: string; value: number }[] = [];
+    for (let i = 0; i < dayPercent.length; i += 7) {
+      const chunk = dayPercent.slice(i, i + 7);
+      out.push({ label: `Week ${out.length + 1}`, value: avg(chunk) });
+    }
+    return out;
+  }, [dayPercent]);
+
+  /** weeks across the semester: 4 weeks per tracked month */
+  const semesterWeeks = useMemo(
     () =>
-      WEEK_TINTS.map((tint, i) => ({
-        tint,
-        label: `Week ${i + 1}`,
-        value: 60 + ((i * 13 + 7) % 12),
-      })),
+      monthTrend.flatMap((m, mi) =>
+        [0, 1, 2, 3].map((w) => ({
+          label: `Week ${mi * 4 + w + 1}`,
+          sub: m.month,
+          value: Math.min(
+            100,
+            Math.max(20, m.value + (((mi * 4 + w) * 7) % 13) - 6),
+          ),
+        })),
+      ),
     [],
   );
+
+  const bars =
+    range === "Week"
+      ? dayPercent.slice(DAYS - 7).map((v, i) => ({ label: WEEKDAYS[i] ?? `D${i + 1}`, value: v }))
+      : range === "Month"
+        ? monthWeeks
+        : range === "Semester"
+          ? monthTrend.map((m) => ({ label: m.month, value: m.value }))
+          : dayPercent.slice(DAYS - 14).map((v, i) => ({ label: `${DAYS - 14 + i + 1}`, value: v }));
+
+  const gauges =
+    range === "Week"
+      ? weekdays.map((w) => ({ label: w.label, value: w.value }))
+      : range === "Semester"
+        ? semesterWeeks
+        : monthWeeks;
+
+  const rangeAvg = avg(bars.map((b) => b.value));
+  const rangeTitle =
+    range === "Week"
+      ? "Weekly"
+      : range === "Month"
+        ? "Monthly"
+        : range === "Semester"
+          ? "Semester"
+          : "Custom";
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -177,33 +223,29 @@ function AnalyticsPage() {
 
         {/* trend */}
         <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="text-[15px] font-semibold">
-            {range === "Week" ? "Weekly" : range} Completion Trend
-          </h2>
-          <p className="text-[11px] text-muted-foreground">Average: {weeklyAvg}%</p>
+          <h2 className="text-[15px] font-semibold">{rangeTitle} Completion Trend</h2>
+          <p className="text-[11px] text-muted-foreground">Average: {rangeAvg}%</p>
 
           <div className="mt-5 flex h-44 items-end gap-2 sm:gap-4">
-            {weekdays.map((d, i) => {
+            {bars.map((d, i) => {
               const tint = WEEK_TINTS[i % 4]!;
               return (
-                <div key={d.label} className="flex h-full flex-1 flex-col items-center justify-end">
+                <div key={`${d.label}-${i}`} className="flex h-full flex-1 flex-col items-center justify-end">
                   <div
                     title={`${d.value}%`}
                     className={`w-full rounded-lg ${FILL[tint]} opacity-80`}
                     style={{ height: `${Math.max(d.value, 6)}%` }}
                   />
-                  <span className="mt-2 text-[11px] text-muted-foreground">
-                    {WEEKDAYS[i] ?? d.label}
-                  </span>
+                  <span className="mt-2 text-[11px] text-muted-foreground">{d.label}</span>
                 </div>
               );
             })}
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-border pt-4">
-            {weekGauges.map((w) => (
-              <div key={w.label} className="flex items-center gap-2">
-                <Donut value={w.value} tint={w.tint} size={38} showLabel />
+          <div className="mt-4 flex flex-wrap items-center gap-4 overflow-x-auto border-t border-border pt-4">
+            {gauges.map((w, i) => (
+              <div key={`${w.label}-${i}`} className="flex shrink-0 items-center gap-2">
+                <Donut value={w.value} tint={WEEK_TINTS[i % 4]!} size={38} showLabel />
                 <div className="leading-tight">
                   <p className="text-[11px]">{w.label}</p>
                   <p className="text-[10px] tabular-nums text-muted-foreground">{w.value}%</p>
