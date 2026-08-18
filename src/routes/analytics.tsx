@@ -428,3 +428,7 @@ function Insight({
     </div>
   );
 }
+
+function avg(v: number[]) {
+  return Math.round(v.reduce((a, b) => a + b, 0) / (v.length || 1));
+}
