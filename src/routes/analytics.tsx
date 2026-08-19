@@ -242,10 +242,13 @@ function AnalyticsPage() {
             })}
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-4 overflow-x-auto border-t border-border pt-4">
+          <div
+            className="mt-4 grid gap-x-3 gap-y-4 border-t border-border pt-4"
+            style={{ gridTemplateColumns: "repeat(auto-fit, minmax(84px, 1fr))" }}
+          >
             {gauges.map((w, i) => (
-              <div key={`${w.label}-${i}`} className="flex shrink-0 items-center gap-2">
-                <Donut value={w.value} tint={WEEK_TINTS[i % 4]!} size={38} showLabel />
+              <div key={`${w.label}-${i}`} className="flex flex-col items-center gap-1.5 text-center">
+                <Donut value={w.value} tint={WEEK_TINTS[i % 4]!} size={48} showLabel />
                 <div className="leading-tight">
                   <p className="text-[11px]">{w.label}</p>
                   <p className="text-[10px] tabular-nums text-muted-foreground">{w.value}%</p>
