@@ -1,19 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Bell } from "lucide-react";
+import { Bell, Cloud, Database } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AppMenu } from "@/components/AppMenu";
-import {
-  DAYS,
-  WEEKDAYS,
-  categoryColor,
-  dayPercentFor,
-  habitStats,
-  habits,
-  monthTrend,
-  percent,
-  weekdayPercentFor,
-} from "@/lib/habit-analytics";
+import { useHabits } from "@/lib/habits-context";
+import { DAYS, WEEKDAYS, categoryColor, monthTrend } from "@/lib/habit-analytics";
 
 const FILL: Record<string, string> = {
   w1: "bg-w1",
@@ -53,14 +44,6 @@ const HABIT_EMOJI: Record<string, string> = {
   steps: "👟",
 };
 
-const stickers = [
-  { emoji: "📖", label: "Study Star" },
-  { emoji: "💧", label: "Hydration Hero" },
-  { emoji: "🧘", label: "Mindful Moment" },
-  { emoji: "🎯", label: "Goal Getter" },
-  { emoji: "💗", label: "Self-Care Champ" },
-];
-
 const WEEK_TINTS = ["w1", "w2", "w3", "w4", "w1", "w2", "w3", "w4"];
 
 export const Route = createFileRoute("/analytics")({
@@ -88,16 +71,35 @@ export const Route = createFileRoute("/analytics")({
 function AnalyticsPage() {
   const [range, setRange] = useState<RangeKey>("Week");
 
-  const list = useMemo(() => habits.filter((h) => h.status === "active"), []);
-  const stats = useMemo(() => habitStats(list), [list]);
-  const weekdays = useMemo(() => weekdayPercentFor(list), [list]);
-  const dayPercent = useMemo(() => dayPercentFor(list), [list]);
+  const {
+    activeHabits: list,
+    grid,
+    dayPercentages: dayPercent,
+    weekdayPercentages: weekdays,
+    overall,
+    bestStreak,
+    streak,
+    earnedStickers,
+    cloudSynced,
+  } = useHabits();
 
-  const overall = percent(
-    stats.reduce((a, s) => a + s.done, 0),
-    list.length * DAYS,
-  );
-  const bestStreak = Math.max(...stats.map((s) => s.best));
+  const stats = useMemo(() => {
+    return list.map((h, i) => {
+      const row = grid[i] || [];
+      const done = row.filter(Boolean).length;
+      let best = 0;
+      let run = 0;
+      let current = 0;
+      row.forEach((v, idx) => {
+        run = v ? run + 1 : 0;
+        best = Math.max(best, run);
+        if (idx === row.length - 1) current = run;
+      });
+      const rate = DAYS > 0 ? Math.round((done / DAYS) * 100) : 0;
+      return { habit: h, done, rate, best, current, row };
+    });
+  }, [list, grid]);
+
   const sorted = [...stats].sort((a, b) => b.rate - a.rate);
   const strongest = sorted.slice(0, 2);
   const nurture = sorted.slice(-2).reverse();
@@ -363,14 +365,30 @@ function AnalyticsPage() {
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 className="text-[14px] font-semibold">Stickers earned</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-[14px] font-semibold">Stickers earned</h3>
+              {cloudSynced ? (
+                <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                  <Cloud className="h-3 w-3" />
+                  Synced
+                </span>
+              ) : null}
+            </div>
             <ul className="mt-3 flex flex-wrap gap-3">
-              {stickers.map((s, i) => (
-                <li key={s.label} className="flex w-16 flex-col items-center gap-1 text-center">
+              {earnedStickers.map((s, i) => (
+                <li
+                  key={s.id}
+                  className={`flex w-16 flex-col items-center gap-1 text-center transition-all ${
+                    s.unlocked ? "opacity-100" : "opacity-40 grayscale"
+                  }`}
+                  title={`${s.label}: ${s.description} (${s.unlocked ? "Unlocked" : "Locked"})`}
+                >
                   <span
                     role="img"
                     aria-label={s.label}
-                    className={`grid h-11 w-11 place-items-center rounded-full ${SOFT[WEEK_TINTS[i % 4]!]} text-lg`}
+                    className={`grid h-11 w-11 place-items-center rounded-full ${
+                      s.unlocked ? SOFT[WEEK_TINTS[i % 4]!] : "bg-muted"
+                    } text-lg`}
                   >
                     {s.emoji}
                   </span>

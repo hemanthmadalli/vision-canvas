@@ -2,37 +2,60 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper functions
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-    
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+    // 1. Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
     }
 
-    // User profile and private subcollections (habits, logs, stats)
+    // Common Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Connection validation test document
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // User Profile Document & Private Subcollections
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
-      
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create, update: if isOwner(userId) && isValidId(userId);
+      allow delete: if isOwner(userId);
+
+      // User Personal Habits
       match /habits/{habitId} {
-        allow read, write: if isOwner(userId);
+        allow get, list: if isOwner(userId);
+        allow create, update, delete: if isOwner(userId) && isValidId(habitId);
       }
-      
+
+      // User Personal Habit Logs
       match /logs/{logId} {
-        allow read, write: if isOwner(userId);
+        allow get, list: if isOwner(userId);
+        allow create, update, delete: if isOwner(userId) && isValidId(logId);
       }
-      
+
+      // User Personal Stats
       match /stats/{statId} {
-        allow read, write: if isOwner(userId);
+        allow get, list: if isOwner(userId);
+        allow create, update, delete: if isOwner(userId) && isValidId(statId);
       }
     }
-    
-    // Public community leaderboard (readable by authenticated users, writable only by the owner)
+
+    // Public Community Leaderboard
     match /leaderboard/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+      allow get, list: if isSignedIn();
+      allow create, update: if isOwner(userId) && isValidId(userId);
+      allow delete: if isOwner(userId);
     }
   }
 }

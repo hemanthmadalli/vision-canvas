@@ -3,6 +3,7 @@ import {
   Archive,
   CheckCircle2,
   Clock3,
+  Cloud,
   Flame,
   Hash,
   Leaf,
@@ -13,12 +14,9 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppMenu } from "@/components/AppMenu";
-import {
-  habitStats,
-  habits as seedHabits,
-  type Habit,
-  type HabitKind,
-} from "@/lib/habit-analytics";
+import { useAuth } from "@/lib/auth-context";
+import { useHabits } from "@/lib/habits-context";
+import { habitStats, type Habit, type HabitKind } from "@/lib/habit-analytics";
 
 export const Route = createFileRoute("/habits")({ component: HabitsPage });
 type Filter = "all" | "active" | "archived";
@@ -61,9 +59,15 @@ const EXTRAS: Record<string, [string, string, string]> = {
 };
 
 function HabitsPage() {
-  const [habits, setHabits] = useState(() =>
-    seedHabits.slice(0, 6).map((h, i) => (i === 5 ? { ...h, status: "archived" as const } : h)),
-  );
+  const { user } = useAuth();
+  const {
+    habits: contextHabits,
+    addHabit: contextAddHabit,
+    toggleHabitStatus,
+    cloudSynced,
+    syncing,
+  } = useHabits();
+
   const [filter, setFilter] = useState<Filter>("all");
   const [kind, setKind] = useState<KindFilter>("all");
   const [query, setQuery] = useState("");
@@ -71,6 +75,18 @@ function HabitsPage() {
   const [name, setName] = useState("");
   const [newKind, setNewKind] = useState<HabitKind>("binary");
   const [days, setDays] = useState(["Mon", "Tue", "Wed", "Thu", "Fri"]);
+
+  const habits = useMemo<Habit[]>(() => {
+    return contextHabits.map((h, idx) => ({
+      id: h.id,
+      name: h.name,
+      category: h.category || "Routine",
+      kind: "binary",
+      status: (h.status === "archived" ? "archived" : "active") as "active" | "archived",
+      seed: h.seed || idx + 1,
+    }));
+  }, [contextHabits]);
+
   const rows = useMemo(
     () =>
       habits.filter(
@@ -82,25 +98,14 @@ function HabitsPage() {
     [habits, filter, kind, query],
   );
   const stats = habitStats(habits);
-  const toggle = (id: string) =>
-    setHabits((x) =>
-      x.map((h) =>
-        h.id === id ? { ...h, status: h.status === "active" ? "archived" : "active" } : h,
-      ),
-    );
-  const save = () => {
+
+  const toggle = async (id: string) => {
+    await toggleHabitStatus(id);
+  };
+
+  const save = async () => {
     if (!name.trim()) return;
-    setHabits((x) => [
-      ...x,
-      {
-        id: String(Date.now()),
-        name,
-        category: "Routine",
-        kind: newKind,
-        status: "active",
-        seed: 37 + x.length,
-      },
-    ]);
+    await contextAddHabit(name.trim(), "Routine", 30);
     setName("");
     setOpen(false);
   };

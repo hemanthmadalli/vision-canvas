@@ -13,9 +13,10 @@ import {
   Trophy,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AppMenu } from "@/components/AppMenu";
+import { useHabits } from "@/lib/habits-context";
 import {
   Dialog,
   DialogContent,
@@ -363,9 +364,22 @@ const CATEGORIES: Category[] = [
   "Special",
 ];
 
+const STICKERS_STORAGE_KEY = "vision_unlocked_stickers_v2";
+
+function getStoredUnlocks(): { unlockedIds: string[]; spentStars: number } {
+  if (typeof window === "undefined") return { unlockedIds: [], spentStars: 0 };
+  try {
+    const raw = localStorage.getItem(STICKERS_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (err) {
+    console.warn("Error reading stickers from localStorage:", err);
+  }
+  return { unlockedIds: [], spentStars: 0 };
+}
+
 function StickerStorePage() {
-  const [stickers, setStickers] = useState<Sticker[]>(INITIAL_STICKERS);
-  const [stars, setStars] = useState(120);
+  const { stars: earnedStars } = useHabits();
+  const [unlockData, setUnlockData] = useState(getStoredUnlocks);
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState<"default" | "low-to-high" | "high-to-low">(
@@ -373,6 +387,49 @@ function StickerStorePage() {
   );
   const [viewAllOpen, setViewAllOpen] = useState(false);
   const [confirmUnlock, setConfirmUnlock] = useState<Sticker | null>(null);
+
+  // Sync unlock data across tabs in real-time
+  useEffect(() => {
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel("vision_stickers_channel");
+      bc.onmessage = (event) => {
+        if (event.data?.type === "STICKER_UNLOCK_SYNC" && event.data?.payload) {
+          setUnlockData(event.data.payload);
+        }
+      };
+    } catch {
+      // BroadcastChannel unsupported in test env
+    }
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STICKERS_STORAGE_KEY && e.newValue) {
+        try {
+          setUnlockData(JSON.parse(e.newValue));
+        } catch {
+          // ignore
+        }
+      }
+    };
+    window.addEventListener("storage", onStorage);
+
+    return () => {
+      bc?.close();
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
+  // Compute stars available: 120 base bonus + earned stars from habit checks - spent stars
+  const stars = Math.max(0, 120 + earnedStars - (unlockData.spentStars || 0));
+
+  const stickers = useMemo<Sticker[]>(() => {
+    return INITIAL_STICKERS.map((s) => {
+      if (s.unlocked || unlockData.unlockedIds.includes(s.id)) {
+        return { ...s, unlocked: true };
+      }
+      return s;
+    });
+  }, [unlockData.unlockedIds]);
 
   // Stats
   const unlockedStickers = useMemo(() => stickers.filter((s) => s.unlocked), [stickers]);
@@ -412,22 +469,21 @@ function StickerStorePage() {
       return;
     }
 
-    setStars((prev) => prev - sticker.cost);
-    setStickers((prev) =>
-      prev.map((s) =>
-        s.id === sticker.id
-          ? {
-              ...s,
-              unlocked: true,
-              unlockedAt: new Date().toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              }),
-            }
-          : s,
-      ),
-    );
+    const nextData = {
+      unlockedIds: Array.from(new Set([...unlockData.unlockedIds, sticker.id])),
+      spentStars: (unlockData.spentStars || 0) + sticker.cost,
+    };
+    setUnlockData(nextData);
+
+    try {
+      localStorage.setItem(STICKERS_STORAGE_KEY, JSON.stringify(nextData));
+      const bc = new BroadcastChannel("vision_stickers_channel");
+      bc.postMessage({ type: "STICKER_UNLOCK_SYNC", payload: nextData });
+      bc.close();
+    } catch (err) {
+      console.warn("Failed to broadcast sticker unlock:", err);
+    }
+
     setConfirmUnlock(null);
     toast.success(`🎉 Unlocked "${sticker.name}" sticker for ${sticker.cost} stars!`);
   };

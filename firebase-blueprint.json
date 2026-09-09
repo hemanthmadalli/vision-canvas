@@ -1,0 +1,191 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile document storing basic account and display settings.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth user ID",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address",
+          "maxLength": 254
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User display name",
+          "maxLength": 100
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "User avatar photo URL",
+          "maxLength": 2048
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Account creation timestamp",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp",
+          "maxLength": 64
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "Habit": {
+      "title": "Habit",
+      "description": "A custom or default habit tracked by the user.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique habit identifier",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner UID",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the habit",
+          "maxLength": 100
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the habit",
+          "maxLength": 50
+        },
+        "goal": {
+          "type": "number",
+          "description": "Monthly goal target count"
+        },
+        "seed": {
+          "type": "number",
+          "description": "Display visual seed number"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation ISO timestamp",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update ISO timestamp",
+          "maxLength": 64
+        }
+      },
+      "required": ["id", "userId", "name", "goal"]
+    },
+    "HabitLog": {
+      "title": "Habit Daily Log",
+      "description": "Daily completion status record for a habit.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique log ID formatted as day_habitId",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner UID",
+          "maxLength": 128
+        },
+        "habitId": {
+          "type": "string",
+          "description": "Referenced habit ID",
+          "maxLength": 128
+        },
+        "day": {
+          "type": "number",
+          "description": "Day of the month (1 to 31)"
+        },
+        "month": {
+          "type": "string",
+          "description": "Month name e.g. June",
+          "maxLength": 20
+        },
+        "year": {
+          "type": "number",
+          "description": "Year e.g. 2026"
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Whether the habit was completed on that day"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Update timestamp",
+          "maxLength": 64
+        }
+      },
+      "required": ["id", "userId", "habitId", "day", "completed"]
+    },
+    "LeaderboardEntry": {
+      "title": "Leaderboard Entry",
+      "description": "Public summary score of a user for leaderboard rankings.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "User ID",
+          "maxLength": 128
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name",
+          "maxLength": 100
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "Avatar image URL",
+          "maxLength": 2048
+        },
+        "score": {
+          "type": "number",
+          "description": "Overall completion percentage"
+        },
+        "totalCompleted": {
+          "type": "number",
+          "description": "Total completed habit checkmarks"
+        },
+        "streak": {
+          "type": "number",
+          "description": "Current active streak in days"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp of last score computation",
+          "maxLength": 64
+        }
+      },
+      "required": ["userId", "displayName", "score", "totalCompleted"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile document"
+    },
+    "/users/{userId}/habits/{habitId}": {
+      "schema": "Habit",
+      "description": "User's customized habits"
+    },
+    "/users/{userId}/logs/{logId}": {
+      "schema": "HabitLog",
+      "description": "User's daily completion logs"
+    },
+    "/leaderboard/{userId}": {
+      "schema": "LeaderboardEntry",
+      "description": "Community leaderboard entries"
+    }
+  }
+}

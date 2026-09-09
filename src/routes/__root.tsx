@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/lib/auth-context";
+import { HabitsProvider } from "@/lib/habits-context";
 
 function NotFoundComponent() {
   return (
@@ -78,11 +80,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Vision Canvas — Monthly Habit Tracker" },
+      {
+        name: "description",
+        content:
+          "Monthly habit tracker and planner dashboard with progress analytics, habits matrix, stickers, and leaderboard.",
+      },
+      { name: "author", content: "Vision Canvas" },
+      { property: "og:title", content: "Vision Canvas — Monthly Habit Tracker" },
+      {
+        property: "og:description",
+        content:
+          "Monthly habit tracker and planner dashboard with progress analytics, habits matrix, stickers, and leaderboard.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
@@ -124,9 +134,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <Toaster position="top-right" richColors />
+      <AuthProvider>
+        <HabitsProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <Toaster position="top-right" richColors />
+        </HabitsProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

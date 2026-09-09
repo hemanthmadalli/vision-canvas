@@ -1,0 +1,6 @@
+{
+  "name": "Vision Canvas",
+  "description": "Monthly habit tracker and planner dashboard with progress analytics, habits matrix, stickers, and leaderboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

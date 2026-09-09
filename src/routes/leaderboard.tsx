@@ -11,12 +11,25 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppMenu } from "@/components/AppMenu";
+import { useAuth } from "@/lib/auth-context";
+import { getLeaderboardEntries, type LeaderboardEntry } from "@/lib/firestore-habits";
 
 export const Route = createFileRoute("/leaderboard")({ component: LeaderboardPage });
 
-const people = [
+type PersonItem = {
+  rank: number;
+  name: string;
+  score: number;
+  streak: number;
+  trend: number;
+  avatar: string;
+  tint: string;
+  you?: boolean;
+};
+
+const defaultPeople: PersonItem[] = [
   { rank: 1, name: "Ananya R.", score: 94, streak: 18, trend: 1, avatar: "👩🏻", tint: "#ffe9b5" },
   { rank: 2, name: "Dev Patel", score: 91, streak: 15, trend: 0, avatar: "👨🏽", tint: "#dbeafe" },
   { rank: 3, name: "Meera S.", score: 88, streak: 12, trend: 2, avatar: "👩🏽", tint: "#ffe0d3" },
@@ -36,8 +49,61 @@ const people = [
 ];
 
 function LeaderboardPage() {
+  const { user } = useAuth();
   const [period, setPeriod] = useState("Month");
   const [visible, setVisible] = useState(true);
+  const [people, setPeople] = useState<PersonItem[]>(defaultPeople);
+
+  useEffect(() => {
+    let active = true;
+    async function loadFirestoreBoard() {
+      try {
+        const entries = await getLeaderboardEntries();
+        if (!active) return;
+        if (entries && entries.length > 0) {
+          const mapped: PersonItem[] = entries.map((e, idx) => ({
+            rank: idx + 1,
+            name: e.userId === user?.uid ? `${e.displayName} (You)` : e.displayName,
+            score: e.score,
+            streak: e.streak || 7,
+            trend: idx === 0 ? 1 : 0,
+            avatar: "👤",
+            tint: idx === 0 ? "#ffe9b5" : "#dbeafe",
+            you: e.userId === user?.uid,
+          }));
+
+          // If current user is not yet in top entries, add their personal row
+          if (user && !mapped.some((p) => p.you)) {
+            mapped.push({
+              rank: mapped.length + 1,
+              name: `${user.displayName || user.email || "You"} (You)`,
+              score: 85,
+              streak: 8,
+              trend: 1,
+              avatar: "👨🏽",
+              tint: "#dbeafe",
+              you: true,
+            });
+          }
+          setPeople(mapped);
+        } else if (user) {
+          // If no entries in Firestore yet, update the "You" row with user's actual profile name
+          setPeople((prev) =>
+            prev.map((p) =>
+              p.you ? { ...p, name: `${user.displayName || user.email || "You"} (You)` } : p,
+            ),
+          );
+        }
+      } catch (err) {
+        console.warn("Error fetching leaderboard:", err);
+      }
+    }
+    void loadFirestoreBoard();
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
   return (
     <main className="min-h-screen bg-[#fbfcff] p-3 text-slate-900 md:p-4">
       <div className="mx-auto max-w-[1500px] grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">

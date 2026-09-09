@@ -38,6 +38,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { useAuth } from "@/lib/auth-context";
+
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
@@ -71,15 +73,16 @@ const ACCENT_COLORS = [
 
 function ProfileAndSettingsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Profile Form State
   const [profile, setProfile] = useState({
-    name: "Hemanth K.",
-    username: "@hemanth",
-    email: "hemanth@example.com",
+    name: user?.displayName || "Hemanth K.",
+    username: user?.email ? `@${user.email.split("@")[0]}` : "@hemanth",
+    email: user?.email || "hemanth@example.com",
     bio: "Engineering student\nBuilding better habits 🧑‍💻",
     dateJoined: "June 2026",
-    isVerified: true,
+    isVerified: !!user,
   });
 
   // Modals state

@@ -1,22 +1,25 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Check } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Check, Cloud, Database, LogIn, RefreshCw, Sparkles, User as UserIcon } from "lucide-react";
+import { useMemo } from "react";
 import { AppMenu } from "@/components/AppMenu";
 import homePhoto from "@/assets/home-photo.jpg";
+import { useAuth } from "@/lib/auth-context";
+import { useHabits } from "@/lib/habits-context";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "June Habit Tracker — Monthly Planner Dashboard" },
+      { title: "June Habit Tracker — Personal Monthly Planner" },
       {
         name: "description",
         content:
-          "Pastel monthly habit planner: weekly bar chart, week completion gauges, checkbox habit matrix, top habits ranking and daily progress goals.",
+          "Pastel monthly habit planner with isolated per-user Firestore persistence, real-time matrix tracking, weekly progress gauges, and community leaderboard.",
       },
-      { property: "og:title", content: "June Habit Tracker — Monthly Planner" },
+      { property: "og:title", content: "June Habit Tracker — Personal Monthly Planner" },
       {
         property: "og:description",
         content:
-          "Track 14 daily habits across the month with weekly gauges, a checkbox matrix and progress rankings.",
+          "Track your personal daily habits with individual Firestore cloud synchronization, gauges, and habit checklist.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -79,69 +82,7 @@ const weekTint: Record<
   },
 };
 
-const habits = [
-  { name: "Review class notes", seed: 3, goal: 30 },
-  { name: "Solve assignments", seed: 5, goal: 30 },
-  { name: "Organize study desk", seed: 7, goal: 25 },
-  { name: "Read 10 pages of a book", seed: 2, goal: 30 },
-  { name: "Exercise for 30 minutes", seed: 11, goal: 25 },
-  { name: "Drink 8 glasses of water", seed: 4, goal: 30 },
-  { name: "Plan next day's schedule", seed: 6, goal: 30 },
-  { name: "Meditate for 10 minutes", seed: 9, goal: 20 },
-  { name: "Check emails and updates", seed: 13, goal: 30 },
-  { name: "Practice language skills", seed: 8, goal: 25 },
-  { name: "Review flashcards", seed: 10, goal: 20 },
-  { name: "Write in a journal", seed: 12, goal: 30 },
-  { name: "Solve 5 practice problems", seed: 14, goal: 25 },
-  { name: "Connect with a classmate", seed: 15, goal: 20 },
-];
-
 const dates = Array.from({ length: DAYS }, (_, i) => i + 1);
-const rand = (a: number, b: number) => {
-  const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
-  return x - Math.floor(x);
-};
-const grid = habits.map((h, hi) => dates.map((d) => rand(h.seed + hi, d) < 0.55 + (hi % 5) * 0.06));
-
-const dayPercent = dates.map((_, i) =>
-  Math.round((grid.filter((row) => row[i]).length / habits.length) * 100),
-);
-
-const habitCount = grid.map((row) => row.filter(Boolean).length);
-const habitPercent = habitCount.map((c) => Math.round((c / DAYS) * 100));
-
-const weekPercent = weeks.map((w) => {
-  const idx = w.days.map((d) => d - 1);
-  let done = 0;
-  let total = 0;
-  for (const row of grid) {
-    for (const i of idx) {
-      total += 1;
-      if (row[i]) done += 1;
-    }
-  }
-  return Math.round((done / total) * 1000) / 10;
-});
-
-const totalDone = habitCount.reduce((a, b) => a + b, 0);
-const totalCells = habits.length * DAYS;
-const overall = Math.round((totalDone / totalCells) * 10000) / 100;
-
-const stickers = [
-  { emoji: "🌸", label: "7-day streak" },
-  { emoji: "🏅", label: "Perfect week" },
-  { emoji: "📚", label: "Reader" },
-  { emoji: "💧", label: "Hydrated" },
-  { emoji: "🧘", label: "Calm mind" },
-  { emoji: "🔥", label: "30-day streak" },
-];
-
-const leaderboard = [
-  { rank: 1, name: "Ananya R.", percent: 94, you: false },
-  { rank: 2, name: "Dev Patel", percent: 91, you: false },
-  { rank: 3, name: "Meera S.", percent: 88, you: false },
-  { rank: 12, name: "You", percent: Math.round(overall), you: true },
-];
 
 function Donut({
   value,
@@ -174,9 +115,10 @@ function Donut({
             r={r}
             fill="none"
             strokeWidth={6}
+            strokeDasharray={c}
+            strokeDashoffset={c - (c * Math.min(Math.max(value, 0), 100)) / 100}
             strokeLinecap="round"
-            strokeDasharray={`${(c * value) / 100} ${c}`}
-            className={color}
+            className={`${color} transition-all duration-500`}
           />
         </svg>
         <span className="absolute inset-0 grid place-items-center text-[10px] font-semibold tabular-nums">
@@ -192,8 +134,8 @@ function Donut({
   );
 }
 
-function AreaChart() {
-  const pts = dayPercent.map((p, i) => {
+function AreaChart({ dayPercentages }: { dayPercentages: number[] }) {
+  const pts = dayPercentages.map((p, i) => {
     const x = (i / (DAYS - 1)) * 100;
     const y = 100 - Math.min(p, 100) * 0.85;
     return `${x},${y}`;
@@ -229,6 +171,60 @@ function PanelTitle({ children, tint = "bg-w1-soft" }: { children: string; tint?
 }
 
 function Index() {
+  const { user, signInWithGoogle } = useAuth();
+  const {
+    habits: habitsList,
+    grid,
+    syncing,
+    cloudSynced,
+    communityLeaderboard: communityBoard,
+    dayPercentages: dayPercent,
+    habitCounts: habitCount,
+    habitPercentages: habitPercent,
+    weekPercentages: weekPercent,
+    totalDone,
+    overall,
+    toggleCell,
+    earnedStickers,
+  } = useHabits();
+
+  // Build Leaderboard Display
+  const leaderboard = useMemo(() => {
+    const yourScore = Math.round(overall);
+    const youName = user?.displayName ? `${user.displayName} (You)` : "You";
+
+    if (communityBoard.length > 0) {
+      const rows = communityBoard.map((entry, idx) => ({
+        rank: idx + 1,
+        name: entry.userId === user?.uid ? `${entry.displayName} (You)` : entry.displayName,
+        percent: entry.score,
+        you: entry.userId === user?.uid,
+      }));
+      // If user not yet in top entries, append them
+      if (!rows.some((r) => r.you)) {
+        rows.push({
+          rank: rows.length + 1,
+          name: youName,
+          percent: yourScore,
+          you: true,
+        });
+      }
+      return rows.slice(0, 5);
+    }
+
+    return [
+      { rank: 1, name: "Ananya R.", percent: 94, you: false },
+      { rank: 2, name: "Dev Patel", percent: 91, you: false },
+      { rank: 3, name: "Meera S.", percent: 88, you: false },
+      {
+        rank: 4,
+        name: youName,
+        percent: yourScore,
+        you: true,
+      },
+    ];
+  }, [communityBoard, overall, user]);
+
   return (
     <main className="min-h-screen bg-background p-3 text-foreground">
       <div className="grid items-start gap-3 lg:grid-cols-[190px_minmax(0,1fr)_260px]">
@@ -237,9 +233,44 @@ function Index() {
           <div className="flex items-start gap-2">
             <AppMenu />
             <div>
-              <h1 className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
-                {MONTH} {YEAR} — Habit Tracker
-              </h1>
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
+                  {MONTH} {YEAR} — Habit Tracker
+                </h1>
+              </div>
+
+              {/* Firestore Connection Indicator */}
+              <div className="mt-1 flex items-center gap-1.5 text-[9px]">
+                <Cloud className="h-2.5 w-2.5 text-amber-600" />
+                <span className="font-medium text-amber-700">
+                  {user ? "Firestore (Isolated)" : "Guest Session (Local)"}
+                </span>
+                {syncing ? (
+                  <RefreshCw className="h-2.5 w-2.5 animate-spin text-muted-foreground" />
+                ) : cloudSynced ? (
+                  <span
+                    className="h-1.5 w-1.5 rounded-full bg-emerald-500"
+                    title="Synced to Firestore"
+                  />
+                ) : null}
+              </div>
+
+              {/* User / Guest Status */}
+              {!user ? (
+                <div className="mt-1">
+                  <button
+                    type="button"
+                    onClick={() => void signInWithGoogle()}
+                    className="inline-flex items-center gap-1 rounded bg-amber-100 px-1.5 py-0.5 text-[8px] font-medium text-amber-900 transition-colors hover:bg-amber-200"
+                  >
+                    <LogIn className="h-2.5 w-2.5" /> Sign in with Google to sync
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-0.5 text-[8px] text-muted-foreground truncate max-w-[150px]">
+                  👤 {user.displayName || user.email}
+                </div>
+              )}
             </div>
           </div>
 
@@ -260,7 +291,7 @@ function Index() {
         {/* ---------------- TOP CENTER ---------------- */}
         <div className="flex min-w-0 flex-col gap-3">
           <div className="h-[92px] overflow-hidden rounded-md border border-border bg-panel">
-            <AreaChart />
+            <AreaChart dayPercentages={dayPercent} />
           </div>
 
           <div className="rounded-md border border-border bg-panel p-2">
@@ -326,23 +357,18 @@ function Index() {
             </div>
           </div>
 
-          {/* week gauges */}
-          <div className="flex items-center rounded-md border border-border bg-panel px-2 py-2">
-            <div className="flex w-full gap-3">
+          {/* donuts row */}
+          <div className="rounded-md border border-border bg-panel p-2">
+            <div className="flex items-center justify-around gap-1">
               {weeks.map((w, i) => (
-                <div
+                <Donut
                   key={w.label}
-                  className="flex min-w-0 items-center justify-center"
-                  style={{ flex: w.days.length }}
-                >
-                  <Donut
-                    value={weekPercent[i]!}
-                    color={weekTint[w.color]!.stroke}
-                    size={58}
-                    label={w.label}
-                  />
-                </div>
+                  label={w.label}
+                  value={Math.round(weekPercent[i]!)}
+                  color={weekTint[w.color]!.stroke}
+                />
               ))}
+              <Donut label="Overall" value={Math.round(overall)} color="stroke-foreground" />
             </div>
           </div>
         </div>
@@ -353,11 +379,15 @@ function Index() {
           <div className="rounded-md border border-border bg-panel">
             <PanelTitle tint="bg-w2-soft">Stickers earned</PanelTitle>
             <ul className="flex flex-wrap items-center justify-center gap-2 px-2 py-3">
-              {stickers.map((s) => (
+              {earnedStickers.map((s) => (
                 <li
-                  key={s.label}
-                  title={s.label}
-                  className="grid h-9 w-9 place-items-center rounded-full border border-border bg-w2-soft text-base"
+                  key={s.id}
+                  title={`${s.label}: ${s.description} (${s.unlocked ? "Unlocked" : "Locked"})`}
+                  className={`grid h-9 w-9 place-items-center rounded-full border transition-all ${
+                    s.unlocked
+                      ? "border-amber-300 bg-amber-50 text-base shadow-xs"
+                      : "border-border bg-muted/30 text-base opacity-40 grayscale"
+                  }`}
                 >
                   <span role="img" aria-label={s.label}>
                     {s.emoji}
@@ -365,22 +395,31 @@ function Index() {
                 </li>
               ))}
             </ul>
-            <p className="border-t border-border px-2 py-1 text-center font-[family-name:Playfair_Display] text-[9px] italic text-muted-foreground">
-              {stickers.length} stickers collected this month
-            </p>
+            <div className="flex items-center justify-between border-t border-border px-3 py-1.5 text-[9px] text-muted-foreground">
+              <span className="font-[family-name:Playfair_Display] italic">
+                {earnedStickers.filter((s) => s.unlocked).length} of {earnedStickers.length}{" "}
+                unlocked
+              </span>
+              <Link
+                to="/stickers"
+                className="font-medium text-amber-800 underline underline-offset-2 hover:text-amber-950"
+              >
+                Store →
+              </Link>
+            </div>
           </div>
 
           {/* leaderboard */}
           <div className="rounded-md border border-border bg-panel">
-            <PanelTitle>Leaderboard</PanelTitle>
+            <PanelTitle>Community Leaderboard</PanelTitle>
             <div className="flex items-center justify-between border-b border-border px-2 py-1 text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
-              <span>Region — top 3</span>
+              <span>Member</span>
               <span>Score</span>
             </div>
             <ol className="divide-y divide-border">
               {leaderboard.map((p) => (
                 <li
-                  key={p.name}
+                  key={`${p.rank}-${p.name}`}
                   className={`flex items-center gap-2 px-2 py-1.5 text-[10px] ${
                     p.you ? "bg-w2-soft font-semibold" : ""
                   }`}
@@ -396,12 +435,22 @@ function Index() {
 
         {/* ---------------- BOTTOM LEFT: daily habits ---------------- */}
         <div className="rounded-md border border-border bg-panel">
-          <PanelTitle>Daily habits</PanelTitle>
+          <div className="flex items-center justify-between border-b border-border bg-w1-soft px-3 py-1.5">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground/70">
+              Daily habits
+            </span>
+            <Link
+              to="/habits"
+              className="text-[9px] font-medium text-amber-800 underline underline-offset-2 hover:text-amber-950"
+            >
+              Manage
+            </Link>
+          </div>
           <div className="h-[22px]" aria-hidden="true" />
           <ul className="flex flex-col gap-[4px] px-2 pb-2">
-            {habits.map((h) => (
+            {habitsList.map((h) => (
               <li
-                key={h.name}
+                key={h.id || h.name}
                 className="flex h-[20px] items-center truncate text-[10px] text-foreground/80"
               >
                 {h.name}
@@ -441,22 +490,24 @@ function Index() {
                   ))}
                 </div>
                 <div className="mt-1 flex flex-col gap-[4px]">
-                  {habits.map((h, ri) => (
-                    <div key={h.name} className="flex h-[20px] items-center gap-[3px]">
+                  {habitsList.map((h, ri) => (
+                    <div key={h.id || h.name} className="flex h-[20px] items-center gap-[3px]">
                       {w.days.map((d) => {
-                        const done = grid[ri]![d - 1];
+                        const done = grid[ri]?.[d - 1] ?? false;
                         return (
-                          <span
+                          <button
+                            type="button"
                             key={d}
-                            title={`${h.name} — ${MONTH} ${d}`}
-                            className={`grid h-[14px] flex-1 place-items-center rounded-[3px] border ${
+                            onClick={() => void toggleCell(ri, d)}
+                            title={`${h.name} — ${MONTH} ${d} (Click to toggle)`}
+                            className={`grid h-[14px] flex-1 place-items-center rounded-[3px] border transition-transform hover:scale-110 ${
                               weekTint[w.color]!.border
-                            } ${done ? weekTint[w.color]!.bar : "bg-panel"}`}
+                            } ${done ? weekTint[w.color]!.bar : "bg-panel hover:bg-muted/40"}`}
                           >
                             {done ? (
                               <Check className="h-[9px] w-[9px] text-panel" strokeWidth={4} />
                             ) : null}
-                          </span>
+                          </button>
                         );
                       })}
                     </div>
@@ -476,9 +527,9 @@ function Index() {
             <span className="text-right">Count</span>
           </div>
           <ul className="flex flex-col gap-[4px] px-1 pb-1">
-            {habits.map((h, i) => (
+            {habitsList.map((h, i) => (
               <li
-                key={h.name}
+                key={h.id || h.name}
                 className="grid h-[20px] grid-cols-[26px_minmax(0,1fr)_34px] items-center gap-1 px-1 text-[9px]"
               >
                 <span className="tabular-nums text-muted-foreground">{h.goal}</span>

@@ -1,9 +1,9 @@
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, cpSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 async function generateStaticHtml() {
   console.log("Generating static HTML files for Firebase Hosting...");
-  
+
   const ssrModule = await import("../node_modules/.nitro/vite/services/ssr/index.js");
   const fetchHandler = ssrModule.default.fetch;
 
@@ -34,6 +34,12 @@ async function generateStaticHtml() {
       console.error(`Error generating ${route.path}:`, err);
     }
   }
+
+  const publicDir = join(process.cwd(), ".output/public");
+  const distDir = join(process.cwd(), "dist");
+  mkdirSync(distDir, { recursive: true });
+  cpSync(publicDir, distDir, { recursive: true });
+  console.log("✓ Copied static files to dist/");
 
   console.log("Static HTML generation complete!");
 }
