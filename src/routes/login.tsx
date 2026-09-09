@@ -30,9 +30,7 @@ function LoginPage() {
     <main className="grid min-h-screen place-items-center bg-cream px-4 py-10 text-foreground">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
-            June 2026
-          </p>
+          <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">June 2026</p>
           <h1 className="mt-2 font-[family-name:Playfair_Display] text-3xl font-medium">
             Habit Tracker
           </h1>
@@ -63,9 +61,7 @@ function LoginPage() {
               navigate({ to: "/" });
             }}
           >
-            {mode === "signup" ? (
-              <Field label="Name" type="text" placeholder="Your name" />
-            ) : null}
+            {mode === "signup" ? <Field label="Name" type="text" placeholder="Your name" /> : null}
             <Field label="Email" type="email" placeholder="you@example.com" />
             <Field label="Password" type="password" placeholder="••••••••" />
             {mode === "login" ? (
@@ -116,20 +112,10 @@ function LoginPage() {
   );
 }
 
-function Field({
-  label,
-  type,
-  placeholder,
-}: {
-  label: string;
-  type: string;
-  placeholder: string;
-}) {
+function Field({ label, type, placeholder }: { label: string; type: string; placeholder: string }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-        {label}
-      </span>
+      <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{label}</span>
       <input
         type={type}
         placeholder={placeholder}

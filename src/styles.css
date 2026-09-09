@@ -168,3 +168,19 @@
     color: var(--color-foreground);
   }
 }
+
+@layer components {
+  .input {
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    outline: none;
+    background: white;
+  }
+
+  .input:focus {
+    border-color: oklch(0.62 0.16 255);
+  }
+}

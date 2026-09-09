@@ -15,16 +15,86 @@ export const DAYS = 30;
 export const MONTH_LABEL = "June 2026";
 
 export const habits: Habit[] = [
-  { id: "notes", name: "Review class notes", category: "Study", kind: "duration", status: "active", seed: 3 },
-  { id: "assign", name: "Solve assignments", category: "Study", kind: "binary", status: "active", seed: 5 },
-  { id: "read", name: "Read 10 pages", category: "Mind", kind: "numeric", status: "active", seed: 2 },
-  { id: "exercise", name: "Exercise 30 min", category: "Body", kind: "duration", status: "active", seed: 11 },
-  { id: "water", name: "Drink 8 glasses of water", category: "Body", kind: "numeric", status: "active", seed: 4 },
-  { id: "plan", name: "Plan next day", category: "Routine", kind: "binary", status: "active", seed: 6 },
-  { id: "meditate", name: "Meditate 10 min", category: "Mind", kind: "duration", status: "active", seed: 9 },
-  { id: "language", name: "Practice language", category: "Study", kind: "duration", status: "active", seed: 8 },
-  { id: "journal", name: "Write in journal", category: "Mind", kind: "binary", status: "active", seed: 12 },
-  { id: "steps", name: "Walk 8,000 steps", category: "Body", kind: "numeric", status: "active", seed: 15 },
+  {
+    id: "notes",
+    name: "Review class notes",
+    category: "Study",
+    kind: "duration",
+    status: "active",
+    seed: 3,
+  },
+  {
+    id: "assign",
+    name: "Solve assignments",
+    category: "Study",
+    kind: "binary",
+    status: "active",
+    seed: 5,
+  },
+  {
+    id: "read",
+    name: "Read 10 pages",
+    category: "Mind",
+    kind: "numeric",
+    status: "active",
+    seed: 2,
+  },
+  {
+    id: "exercise",
+    name: "Exercise 30 min",
+    category: "Body",
+    kind: "duration",
+    status: "active",
+    seed: 11,
+  },
+  {
+    id: "water",
+    name: "Drink 8 glasses of water",
+    category: "Body",
+    kind: "numeric",
+    status: "active",
+    seed: 4,
+  },
+  {
+    id: "plan",
+    name: "Plan next day",
+    category: "Routine",
+    kind: "binary",
+    status: "active",
+    seed: 6,
+  },
+  {
+    id: "meditate",
+    name: "Meditate 10 min",
+    category: "Mind",
+    kind: "duration",
+    status: "active",
+    seed: 9,
+  },
+  {
+    id: "language",
+    name: "Practice language",
+    category: "Study",
+    kind: "duration",
+    status: "active",
+    seed: 8,
+  },
+  {
+    id: "journal",
+    name: "Write in journal",
+    category: "Mind",
+    kind: "binary",
+    status: "active",
+    seed: 12,
+  },
+  {
+    id: "steps",
+    name: "Walk 8,000 steps",
+    category: "Body",
+    kind: "numeric",
+    status: "active",
+    seed: 15,
+  },
   {
     id: "cold-shower",
     name: "Cold shower",
@@ -54,7 +124,7 @@ const rand = (a: number, b: number) => {
 
 /** completion grid: habit -> day -> done */
 export const gridFor = (list: Habit[]) =>
-  list.map((h, hi) => dates.map((d) => rand(h.seed + hi, d) < 0.55 + ((hi % 5) * 0.06)));
+  list.map((h, hi) => dates.map((d) => rand(h.seed + hi, d) < 0.55 + (hi % 5) * 0.06));
 
 export const percent = (done: number, total: number) =>
   total === 0 ? 0 : Math.round((done / total) * 100);

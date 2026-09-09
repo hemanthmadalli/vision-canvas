@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User profile and private subcollections (habits, logs, stats)
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+      
+      match /habits/{habitId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      match /logs/{logId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      match /stats/{statId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+    
+    // Public community leaderboard (readable by authenticated users, writable only by the owner)
+    match /leaderboard/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+  }
+}

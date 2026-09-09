@@ -42,11 +42,41 @@ const weekTint: Record<
   string,
   { bar: string; soft: string; text: string; border: string; stroke: string }
 > = {
-  w1: { bar: "bg-w1", soft: "bg-w1-soft", text: "text-w1", border: "border-w1", stroke: "stroke-w1" },
-  w2: { bar: "bg-w2", soft: "bg-w2-soft", text: "text-w2", border: "border-w2", stroke: "stroke-w2" },
-  w3: { bar: "bg-w3", soft: "bg-w3-soft", text: "text-w3", border: "border-w3", stroke: "stroke-w3" },
-  w4: { bar: "bg-w4", soft: "bg-w4-soft", text: "text-w4", border: "border-w4", stroke: "stroke-w4" },
-  w5: { bar: "bg-w5", soft: "bg-w5-soft", text: "text-w5", border: "border-w5", stroke: "stroke-w5" },
+  w1: {
+    bar: "bg-w1",
+    soft: "bg-w1-soft",
+    text: "text-w1",
+    border: "border-w1",
+    stroke: "stroke-w1",
+  },
+  w2: {
+    bar: "bg-w2",
+    soft: "bg-w2-soft",
+    text: "text-w2",
+    border: "border-w2",
+    stroke: "stroke-w2",
+  },
+  w3: {
+    bar: "bg-w3",
+    soft: "bg-w3-soft",
+    text: "text-w3",
+    border: "border-w3",
+    stroke: "stroke-w3",
+  },
+  w4: {
+    bar: "bg-w4",
+    soft: "bg-w4-soft",
+    text: "text-w4",
+    border: "border-w4",
+    stroke: "stroke-w4",
+  },
+  w5: {
+    bar: "bg-w5",
+    soft: "bg-w5-soft",
+    text: "text-w5",
+    border: "border-w5",
+    stroke: "stroke-w5",
+  },
 };
 
 const habits = [
@@ -71,9 +101,7 @@ const rand = (a: number, b: number) => {
   const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
   return x - Math.floor(x);
 };
-const grid = habits.map((h, hi) =>
-  dates.map((d) => rand(h.seed + hi, d) < 0.55 + ((hi % 5) * 0.06)),
-);
+const grid = habits.map((h, hi) => dates.map((d) => rand(h.seed + hi, d) < 0.55 + (hi % 5) * 0.06));
 
 const dayPercent = dates.map((_, i) =>
   Math.round((grid.filter((row) => row[i]).length / habits.length) * 100),
@@ -251,7 +279,11 @@ function Index() {
             {/* bars */}
             <div className="mt-1 flex h-[86px] items-end gap-3">
               {weeks.map((w) => (
-                <div key={w.label} className="flex h-full items-end gap-[3px]" style={{ flex: w.days.length }}>
+                <div
+                  key={w.label}
+                  className="flex h-full items-end gap-[3px]"
+                  style={{ flex: w.days.length }}
+                >
                   {w.days.map((d) => (
                     <div
                       key={d}
@@ -282,7 +314,10 @@ function Index() {
               {weeks.map((w) => (
                 <div key={w.label} className="flex gap-[3px]" style={{ flex: w.days.length }}>
                   {w.days.map((d) => (
-                    <span key={d} className="flex-1 text-center text-[7px] tabular-nums text-foreground/60">
+                    <span
+                      key={d}
+                      className="flex-1 text-center text-[7px] tabular-nums text-foreground/60"
+                    >
                       {d}
                     </span>
                   ))}

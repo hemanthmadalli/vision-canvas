@@ -75,7 +75,8 @@ export const Route = createFileRoute("/analytics")({
       { property: "og:title", content: "Analytics — Habit Tracker for Students" },
       {
         property: "og:description",
-        content: "Trends, streaks and supportive insights that help you understand your own habits.",
+        content:
+          "Trends, streaks and supportive insights that help you understand your own habits.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -100,9 +101,7 @@ function AnalyticsPage() {
   const sorted = [...stats].sort((a, b) => b.rate - a.rate);
   const strongest = sorted.slice(0, 2);
   const nurture = sorted.slice(-2).reverse();
-  const weeklyAvg = Math.round(
-    weekdays.reduce((a, w) => a + w.value, 0) / (weekdays.length || 1),
-  );
+  const weeklyAvg = Math.round(weekdays.reduce((a, w) => a + w.value, 0) / (weekdays.length || 1));
 
   /** weeks of the month: chunks of 7 days */
   const monthWeeks = useMemo(() => {
@@ -121,10 +120,7 @@ function AnalyticsPage() {
         [0, 1, 2, 3].map((w) => ({
           label: `Week ${mi * 4 + w + 1}`,
           sub: m.month,
-          value: Math.min(
-            100,
-            Math.max(20, m.value + (((mi * 4 + w) * 7) % 13) - 6),
-          ),
+          value: Math.min(100, Math.max(20, m.value + (((mi * 4 + w) * 7) % 13) - 6)),
         })),
       ),
     [],
@@ -137,7 +133,9 @@ function AnalyticsPage() {
         ? monthWeeks
         : range === "Semester"
           ? monthTrend.map((m) => ({ label: m.month, value: m.value }))
-          : dayPercent.slice(DAYS - 14).map((v, i) => ({ label: `${DAYS - 14 + i + 1}`, value: v }));
+          : dayPercent
+              .slice(DAYS - 14)
+              .map((v, i) => ({ label: `${DAYS - 14 + i + 1}`, value: v }));
 
   const gauges =
     range === "Week"
@@ -213,12 +211,31 @@ function AnalyticsPage() {
           <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm">
             <Donut value={overall} tint="w1" size={54} />
             <p className="text-[13px]">
-              Completion rate: <span className="text-xl font-semibold tabular-nums">{overall}%</span>
+              Completion rate:{" "}
+              <span className="text-xl font-semibold tabular-nums">{overall}%</span>
             </p>
           </div>
-          <Summary tint="w4" icon="📚" label="Active habits" value={`${list.length}`} note="Keep it up!" />
-          <Summary tint="w2" icon="🔥" label="Best streak" value={`${bestStreak} days`} note="Consistency is key!" />
-          <Summary tint="w3" icon="📈" label="Weekly avg" value={`${weeklyAvg}%`} note="Keep building!" />
+          <Summary
+            tint="w4"
+            icon="📚"
+            label="Active habits"
+            value={`${list.length}`}
+            note="Keep it up!"
+          />
+          <Summary
+            tint="w2"
+            icon="🔥"
+            label="Best streak"
+            value={`${bestStreak} days`}
+            note="Consistency is key!"
+          />
+          <Summary
+            tint="w3"
+            icon="📈"
+            label="Weekly avg"
+            value={`${weeklyAvg}%`}
+            note="Keep building!"
+          />
         </section>
 
         {/* trend */}
@@ -230,7 +247,10 @@ function AnalyticsPage() {
             {bars.map((d, i) => {
               const tint = WEEK_TINTS[i % 4]!;
               return (
-                <div key={`${d.label}-${i}`} className="flex h-full flex-1 flex-col items-center justify-end">
+                <div
+                  key={`${d.label}-${i}`}
+                  className="flex h-full flex-1 flex-col items-center justify-end"
+                >
                   <div
                     title={`${d.value}%`}
                     className={`w-full rounded-lg ${FILL[tint]} opacity-80`}
@@ -247,7 +267,10 @@ function AnalyticsPage() {
             style={{ gridTemplateColumns: "repeat(auto-fit, minmax(84px, 1fr))" }}
           >
             {gauges.map((w, i) => (
-              <div key={`${w.label}-${i}`} className="flex flex-col items-center gap-1.5 text-center">
+              <div
+                key={`${w.label}-${i}`}
+                className="flex flex-col items-center gap-1.5 text-center"
+              >
                 <Donut value={w.value} tint={WEEK_TINTS[i % 4]!} size={48} showLabel />
                 <div className="leading-tight">
                   <p className="text-[11px]">{w.label}</p>
@@ -265,16 +288,24 @@ function AnalyticsPage() {
             {sorted.slice(0, 4).map((s) => {
               const tint = categoryColor[s.habit.category] ?? "w1";
               return (
-                <div key={s.habit.id} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+                <div
+                  key={s.habit.id}
+                  className="rounded-2xl border border-border bg-card p-4 shadow-sm"
+                >
                   <div className="flex items-center gap-2">
-                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${SOFT[tint]}`}>
+                    <span
+                      className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${SOFT[tint]}`}
+                    >
                       {HABIT_EMOJI[s.habit.id] ?? "✨"}
                     </span>
                     <p className="text-[12px] leading-snug">{s.habit.name}</p>
                   </div>
                   <p className="mt-3 text-xl font-semibold tabular-nums">{s.rate}%</p>
                   <span className="mt-2 block h-2 overflow-hidden rounded-full bg-muted">
-                    <span className={`block h-full rounded-full ${FILL[tint]}`} style={{ width: `${s.rate}%` }} />
+                    <span
+                      className={`block h-full rounded-full ${FILL[tint]}`}
+                      style={{ width: `${s.rate}%` }}
+                    />
                   </span>
                   <p className="mt-2 text-[11px] text-muted-foreground">
                     🔥 Current streak: {s.current || s.best} days
@@ -307,7 +338,10 @@ function AnalyticsPage() {
           <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
             <h3 className="text-[14px] font-semibold">🌿 Patterns</h3>
             <ul className="mt-3 space-y-2 text-[12px]">
-              {["Weekdays look stronger than weekends", "Evenings are your most consistent time"].map((p) => (
+              {[
+                "Weekdays look stronger than weekends",
+                "Evenings are your most consistent time",
+              ].map((p) => (
                 <li key={p} className="flex items-start gap-2">
                   <span className="text-w3">✓</span>
                   {p}
@@ -367,9 +401,19 @@ function Donut({
   const r = (size - 6) / 2;
   const c = 2 * Math.PI * r;
   return (
-    <span className="relative inline-grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+    <span
+      className="relative inline-grid shrink-0 place-items-center"
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--muted)" strokeWidth="5" />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="var(--muted)"
+          strokeWidth="5"
+        />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -403,12 +447,16 @@ function Summary({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm">
-      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${SOFT[tint]}`}>{icon}</span>
+      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${SOFT[tint]}`}>
+        {icon}
+      </span>
       <div>
         <p className="text-[13px]">
           {label}: <span className="text-xl font-semibold tabular-nums">{value}</span>
         </p>
-        <p className="font-[family-name:Playfair_Display] text-[11px] italic text-muted-foreground">{note}</p>
+        <p className="font-[family-name:Playfair_Display] text-[11px] italic text-muted-foreground">
+          {note}
+        </p>
       </div>
     </div>
   );
@@ -427,7 +475,9 @@ function Insight({
     <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <h3 className="text-[13px] font-semibold">{title}</h3>
       <ul className="mt-2 flex flex-col gap-1.5 text-[12px] text-foreground/80">{children}</ul>
-      <p className="mt-2 font-[family-name:Playfair_Display] text-[11px] italic text-muted-foreground">{note}</p>
+      <p className="mt-2 font-[family-name:Playfair_Display] text-[11px] italic text-muted-foreground">
+        {note}
+      </p>
     </div>
   );
 }

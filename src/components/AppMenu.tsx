@@ -1,20 +1,15 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, BarChart3, Trophy, ListChecks, UserCog, LogOut } from "lucide-react";
+import { Menu, BarChart3, Trophy, ListChecks, UserCog, LogOut, Star } from "lucide-react";
 import { useState } from "react";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const items = [
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/habits", label: "Habit Management", icon: ListChecks },
   { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
-  { to: "/habits", label: "Habit management", icon: ListChecks },
-  { to: "/settings", label: "Settings & profile", icon: UserCog },
+  { to: "/stickers", label: "Sticker Store", icon: Star },
+  { to: "/settings", label: "Profile & Settings", icon: UserCog },
 ] as const;
 
 export function AppMenu() {

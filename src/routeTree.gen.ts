@@ -15,6 +15,7 @@ import { Route as HabitsRouteImport } from './routes/habits'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as StickersRouteImport } from './routes/stickers'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StickersRoute = StickersRouteImport.update({
+  id: '/stickers',
+  path: '/stickers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/stickers': typeof StickersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/stickers': typeof StickersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,27 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/stickers': typeof StickersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/analytics' | '/habits' | '/leaderboard' | '/login' | '/settings'
+    | '/'
+    | '/analytics'
+    | '/habits'
+    | '/leaderboard'
+    | '/login'
+    | '/settings'
+    | '/stickers'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analytics' | '/habits' | '/leaderboard' | '/login' | '/settings'
+  to:
+    | '/'
+    | '/analytics'
+    | '/habits'
+    | '/leaderboard'
+    | '/login'
+    | '/settings'
+    | '/stickers'
   id:
     | '__root__'
     | '/'
@@ -86,6 +108,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/settings'
+    | '/stickers'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,6 +118,7 @@ export interface RootRouteChildren {
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRoute
+  StickersRoute: typeof StickersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -141,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stickers': {
+      id: '/stickers'
+      path: '/stickers'
+      fullPath: '/stickers'
+      preLoaderRoute: typeof StickersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -151,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   SettingsRoute: SettingsRoute,
+  StickersRoute: StickersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
